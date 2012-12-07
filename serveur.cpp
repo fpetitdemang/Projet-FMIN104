@@ -15,10 +15,163 @@
 #include <stdlib.h>
 
 
+bool recherche(char *chaine){
+  return true;
+}
 
 using namespace std;
 
-void *thread_client(void *p){
+
+/**struct msg recu**/
+struct msg{
+
+  int type;
+  int taille;
+  char *msg;
+
+};
+
+void traitrement_requete_employe(msg myMsg)
+{
+ /********************
+   *authentification**
+   ********************/
+
+  int compt = 0;
+  bool authentif = false;
+
+  char nomEmp[20];
+  
+  while(compt<=4 && authentif == false)
+    {
+      if (recherche("")){
+	authentif == true;
+	//recupere nomEmp
+      }
+      compt++;
+    }
+
+  //Echec authentification
+  if (authentif == false){
+    //envoie msg echec
+    //fermer descritpeur
+   
+    //termine le thread
+   
+
+  }
+
+  //Authentification réussi
+  //envoie msg authentification reussi
+  
+
+  /**********************
+   *Redaction rapport***
+   *********************/
+  
+  //attente msg : demande redaction
+  //teste si rapport non creer
+  /******creer rapport*/
+  /* OuvreRapport(nomEmp);
+  char *section;
+
+  do{
+    
+
+
+  }while(*/
+  
+  
+}
+
+
+
+void *thread_employe(void *p){
+
+  
+ int pBr = (int)p;
+  do{
+   
+
+    msg msgR;
+
+
+    //Lit type requete reçu
+    int reception = recv( pBr, msgR.type, 4, 0);
+    if (reception < 0){
+      perror("recv");
+      close(pBr);
+      cout<<"Fermeture connection client"<<endl;
+      pthread_exit(NULL);
+    }
+
+    if(reception == 0){
+      perror("send");
+      cout<<"Fermeture connection client"<<endl;
+      pthread_exit(NULL);
+    }
+    
+    //Lit taille msg a lire
+     int reception = recv(pBr, msgR.taille, 4, 0);
+    if (reception < 0){
+      perror("recv");
+      close(pBr);
+      cout<<"Fermeture connection client"<<endl;
+      pthread_exit(NULL);
+    }
+
+    if(reception == 0){
+      perror("send");
+      cout<<"Fermeture connection client"<<endl;
+      pthread_exit(NULL);
+    }
+
+    //Lit msg de la requete
+    int comptOctetLu = 0;
+    msgR.msg =(char *) malloc(msgR.taille);
+    
+    int reception = recv(pBr, msgR, , 0);
+    if (reception < 0){
+      perror("recv");
+      close(pBr);
+      cout<<"Fermeture connection client"<<endl;
+      pthread_exit(NULL);
+    }
+    
+    if(reception == 0){
+      perror("send");
+      cout<<"Fermeture connection client"<<endl;
+      pthread_exit(NULL);
+    }
+
+    
+    /*
+    if(reception > 0) {
+      cout<<"rcv : Success"<<endl;
+      cout<<msgR<<endl;
+    }
+    
+
+    int envoie = send(pBr[1], msgR, 256, 0);
+    if (envoie < 0){
+      close(pBr[0]);
+      close(pBr[1]);
+      perror("send");
+    }
+    if (envoie == 0){
+      close(pBr[0]);
+      close(pBr[1]);
+      perror("send");
+    }
+
+    if(envoie > 0){
+      cout<<"send : Success"<<endl;
+      cout<<msgR<<endl;
+    }    
+    */
+
+  }while(1);
+  
    
 }
 
@@ -76,7 +229,7 @@ int main(){
     
     //Creation thread-client
     pthread_t t1;	
-    pthread_create(&t1,NULL,thread_client,NULL);
+    pthread_create(&t1,NULL,thread_employe,NULL);
   }
   
   return 0;
