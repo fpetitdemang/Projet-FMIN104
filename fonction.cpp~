@@ -25,11 +25,6 @@ void afficherPaquet(){}
  *              [3eme octet à taille] : message
  */
 
-int deforgerPaquet()
-{
-
-
-}
 /*
 
 int forgerPaquet(const int proto,const char msg){
@@ -63,6 +58,12 @@ int taille = strlen(msg);
 if(taille > 256)
 {
 	fprint (" taille trop grande ")
+}
+
+Paquet.num = proto;
+Paquet.message = msg;
+
+return Paquet;
 }
 
 

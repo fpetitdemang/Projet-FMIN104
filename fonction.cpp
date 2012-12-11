@@ -25,11 +25,6 @@ void afficherPaquet(){}
  *              [3eme octet à taille] : message
  */
 
-int deforgerPaquet()
-{
-
-
-}
 /*
 
 int forgerPaquet(const int proto,const char msg){
@@ -70,10 +65,6 @@ Paquet.message = msg;
 
 return Paquet;
 }
-
-
-
-
 
 
 

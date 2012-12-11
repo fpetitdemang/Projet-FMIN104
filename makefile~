@@ -1,22 +1,29 @@
 serveur: serveur.o sock.o sockdist.o
-	g++ -o serveur serveur.o sock.o sokdist.o
+	g++ -o -lpthead serveur serveur.o sock.o sockdist.o
 
-serveur.o: serveur.cpp sock.h sockdist.h
+serveur.o: serveur.cpp Sock/sock.h Sock/sockdist.h
 	g++ -Wall -c serveur.cpp
 
-sock.o: sock.cpp sock.h
-	g++ -Wall -c sock.cc
+client: client.o sock.o sockdist.o
+	g++ -o client client.o sock.o sockdist.o
+ 
+client.o: client.cpp Sock/sock.h Sock/sockdist.h
+	g++ -Wall -c client.cpp
 
-sockdist.o: serveur.cpp sock.h sockdist.h
-	g++ -Wall -c serveur.cc
+
+sock.o: Sock/sock.cc Sock/sock.h
+	g++ -Wall -c Sock/sock.cc
+
+sockdist.o: Sock/sockdist.cc Sock/sockdist.h
+	g++ -Wall -c Sock/sockdist.cc
+
+
 
 #
 # Cibles habituelles
 #
-clean :
-rm −f ∗˜
+clean:
+	rm -f ∗.o
 
-mrproper : c l e a n
-rm −f h e l l o
-
-−o h e l l o h e l l o . c c
+mrproper: clean
+	rm −f serveur −o serveur serveur.cpp
