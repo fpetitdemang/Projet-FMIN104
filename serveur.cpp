@@ -11,9 +11,14 @@
 
 #include "Sock/sock.h"
 #include "Sock/sockdist.h"
+#include "Subject.h"
+#include "Employe.h"
+
 
 #include <stdlib.h>
 
+char controleur[20] = "controleur";
+char employe[20] = "employe";
 
 bool recherche(char *chaine){
   return true;
@@ -22,157 +27,67 @@ bool recherche(char *chaine){
 using namespace std;
 
 
-/**struct msg recu**/
-struct msg{
+/**
+ * Protocole d'autorisation connexion
+ * int p : descripteur de la BR du circuit virtuel
+ * retourne : -1 -> echec authentification
+ * 			   0 -> controleur reconnu
+ * 			   1 -> employe reconnu
+ */
+int AutorisationConnexion(int p){
 
-  int type;
-  int taille;
-  char *msg;
+	int compt = 0;
 
-};
+	int retour = -1;
 
-void traitrement_requete_employe(msg myMsg)
-{
- /********************
-   *authentification**
-   ********************/
+	//3 tentatives d'authentification
+	while (compt < 4){
 
-  int compt = 0;
-  bool authentif = false;
+		Message MsgR(p);
 
-  char nomEmp[20];
-  
-  while(compt<=4 && authentif == false)
-    {
-      if (recherche("")){
-	authentif == true;
-	//recupere nomEmp
-      }
-      compt++;
-    }
+		//si paquet identification, traitement
+		if (MsgR.type == 1){
+			//verifie si controleur
+			if (strcmp(MsgR.chaine,controleur) == 0) {
+				retour = 6;
+				send(p,&retour,sizeof(int),0);
+				return 0;
+			}
+			//verifie si employe
+			if (strcmp(MsgR.chaine,employe) == 0) {
+				retour = 6;
+				send(p,&retour,sizeof(int),0);
+				return 1;
+			}
+		}
 
-  //Echec authentification
-  if (authentif == false){
-    //envoie msg echec
-    //fermer descritpeur
-   
-    //termine le thread
-   
-
-  }
-
-  //Authentification réussi
-  //envoie msg authentification reussi
-  
-
-  /**********************
-   *Redaction rapport***
-   *********************/
-  
-  //attente msg : demande redaction
-  //teste si rapport non creer
-  /******creer rapport*/
-  /* OuvreRapport(nomEmp);
-  char *section;
-
-  do{
-    
+		//Envoie message d'echec
+		retour = 5;
+		send(p,&retour,sizeof(int),0);
+		compt++;
+	}
 
 
-  }while(*/
-  
-  
+	//retourne -1 si client non identifier
+	return -1;
 }
 
 
 
-void *thread_employe(void *p){
+void *thread_client(void *p){
 
-  
- int pBr = (int)p;
-  do{
-   
+	int auth = AutorisationConnexion((int)p);
+	cout<<"retour authentification : "<<auth<<endl;
+	if (auth == 1){
+		SubjectClient client((int)p);
+		Employe Traitement(&client);
+		client.run();
+	}else{
+	cout<<"Fermeture connexion : identification incorrect"<<endl;
+	close((int)p);
+	}
 
-    msg msgR;
 
-
-    //Lit type requete reçu
-    int reception = recv( pBr, msgR.type, 4, 0);
-    if (reception < 0){
-      perror("recv");
-      close(pBr);
-      cout<<"Fermeture connection client"<<endl;
-      pthread_exit(NULL);
-    }
-
-    if(reception == 0){
-      perror("send");
-      cout<<"Fermeture connection client"<<endl;
-      pthread_exit(NULL);
-    }
-    
-    //Lit taille msg a lire
-     int reception = recv(pBr, msgR.taille, 4, 0);
-    if (reception < 0){
-      perror("recv");
-      close(pBr);
-      cout<<"Fermeture connection client"<<endl;
-      pthread_exit(NULL);
-    }
-
-    if(reception == 0){
-      perror("send");
-      cout<<"Fermeture connection client"<<endl;
-      pthread_exit(NULL);
-    }
-
-    //Lit msg de la requete
-    int comptOctetLu = 0;
-    msgR.msg =(char *) malloc(msgR.taille);
-    
-    int reception = recv(pBr, msgR, , 0);
-    if (reception < 0){
-      perror("recv");
-      close(pBr);
-      cout<<"Fermeture connection client"<<endl;
-      pthread_exit(NULL);
-    }
-    
-    if(reception == 0){
-      perror("send");
-      cout<<"Fermeture connection client"<<endl;
-      pthread_exit(NULL);
-    }
-
-    
-    /*
-    if(reception > 0) {
-      cout<<"rcv : Success"<<endl;
-      cout<<msgR<<endl;
-    }
-    
-
-    int envoie = send(pBr[1], msgR, 256, 0);
-    if (envoie < 0){
-      close(pBr[0]);
-      close(pBr[1]);
-      perror("send");
-    }
-    if (envoie == 0){
-      close(pBr[0]);
-      close(pBr[1]);
-      perror("send");
-    }
-
-    if(envoie > 0){
-      cout<<"send : Success"<<endl;
-      cout<<msgR<<endl;
-    }    
-    */
-
-  }while(1);
-  
-   
 }
 
 
@@ -228,8 +143,8 @@ int main(){
     }
     
     //Creation thread-client
-    pthread_t t1;	
-    pthread_create(&t1,NULL,thread_employe,NULL);
+    pthread_t t1;
+    pthread_create(&t1,NULL,thread_client,(void*)descBrCv);
   }
   
   return 0;

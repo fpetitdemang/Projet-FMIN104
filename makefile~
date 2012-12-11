@@ -23,7 +23,7 @@ sockdist.o: Sock/sockdist.cc Sock/sockdist.h
 # Cibles habituelles
 #
 clean:
-	rm -f ∗.o
+	rm ∗.o
 
 mrproper: clean
 	rm −f serveur −o serveur serveur.cpp
