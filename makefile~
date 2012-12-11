@@ -16,7 +16,7 @@ sockdist.o: serveur.cpp sock.h sockdist.h
 clean :
 rm −f ∗˜
 
-mrproper : clean
-rm −f serveur
+mrproper : c l e a n
+rm −f h e l l o
 
-−o serveur serveur.cpp
+−o h e l l o h e l l o . c c

@@ -65,12 +65,6 @@ if(taille > 256)
 	fprint (" taille trop grande ")
 }
 
-Paquet.num = proto;
-Paquet.message = msg;
-
-return Paquet;
-}
-
 
 
 
