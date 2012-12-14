@@ -150,6 +150,9 @@ return rep;
 
 void Redac()
 {
+
+
+
 }
 
 /******** Demande de sauvegarde du rapport apres du serveur *****/
@@ -160,15 +163,25 @@ void Sauvegarde()
 }
 
 
-
-
 /******** Demande de deconnection *****/
 
 void Deconnection()
 {
+
+/*
+	Demande de deconnection pour faire ça proprement 
+	Envoi au serveur la deconnection
+	type = 2
+*/
+
+	int typeR = 2;
+  send(descBrCli, &typeR, sizeof(int), 0);
+
+
 	cout<<" ******************************** "<<endl;
 	cout<<" FERMETURE DE TOUTE COMMUNICATION "<<endl;
 	cout<<" ******************************** "<<endl;
+
 	exit(1);
 }
 
