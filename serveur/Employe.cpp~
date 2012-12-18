@@ -9,6 +9,21 @@
 
 Employe::Employe(SubjectClient* cli) : Reponse(cli){}
 
-void Employe::Traitement() {}
+void Employe::Traitement() {
+	Message msgR = _subjet->getMessage();
+	cout<<"Message Reçut :\n"<<endl;
+	msgR.Affiche();
+
+	switch(msgR.type){
+	case 0:
+	  
+	  break;
+	default:
+	  break;
+
+	}
+
+
+}
 
 Employe::~Employe() {}

@@ -9,10 +9,13 @@
 #include <string.h>
 #include <pthread.h>
 
-#include "../Sock/sock.h"
-#include "../Sock/sockdist.h"
+#include "Sock/sock.h"
+#include "Sock/sockdist.h"
 #include "Observer/Subject.h"
+#include "Observer/Observer.h"
+#include "Message.h"
 #include "Employe.h"
+#include "SubjectClient.h"
 
 
 #include <stdlib.h>
@@ -48,13 +51,13 @@ int AutorisationConnexion(int p){
 		//si paquet identification, traitement
 		if (MsgR.type == 1){
 			//verifie si controleur
-			if (strcmp(MsgR.chaine,"controleur") == 0) {
+			if (strcmp(MsgR.chaine,controleur) == 0) {
 				retour = 6;
 				send(p,&retour,sizeof(int),0);
 				return 0;
 			}
 			//verifie si employe
-			if (strcmp(MsgR.chaine,"employe") == 0) {
+			if (strcmp(MsgR.chaine,employe) == 0) {
 				retour = 6;
 				send(p,&retour,sizeof(int),0);
 				return 1;

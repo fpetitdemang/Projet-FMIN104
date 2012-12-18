@@ -15,24 +15,17 @@
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <sys/types.h>
-#include <string.h>
 
 class SubjectClient : public Subject{
 private :
-  int descBr;//descritpeur sur la BR du CV
-  Message msgR;
-  char nom[20];
-  int descPdf;//file descritpeur sur le fichier pdf
+	int descBr;
+	Message msgR;
 
 public:
 	SubjectClient();
-	SubjectClient(int pDescBr, char * nomClient);
+	SubjectClient(int pDescBr);
 	virtual Message getMessage();
-	virtual char* getNom();
-	virtual int getDescrPdf();
 	virtual void run();
-	virtual int ecrireRapport(char* chaine);
-	virtual int  ouvreRapport();
 	virtual ~SubjectClient();
 
 };

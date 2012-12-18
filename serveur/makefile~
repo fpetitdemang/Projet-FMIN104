@@ -1,2 +1,15 @@
-all : serveur.o sock.o sockdist.o subject.o observer.o  
-	g++  *.cpp ../Sock/sock.cc ../Sock/sockdist.cc -o serveur Observer/Subject.cpp Observer/Observer.cpp -lpthread
+all : obs.o sock.o objet.o
+	g++  *.o -o serveur -lpthread
+
+
+sock.o : ../Sock/sock.cc ../Sock/sockdist.cc 
+	g++ -c -g ../Sock/sock.cc ../Sock/sockdist.cc
+
+obs.o : ../Observer/Subject.cpp ../Observer/Observer.cpp 
+	g++ -c -g ../Observer/Subject.cpp ../Observer/Observer.cpp 
+
+objet.o : *.cpp *.h
+	g++ -c -g *.cpp
+
+clean:
+	rm ∗.o

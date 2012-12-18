@@ -15,8 +15,12 @@ void Employe::Traitement() {
 	msgR.Affiche();
 
 	switch(msgR.type){
-	case 0:
 	  
+	case 4://reçoit requete rapport	
+	  //recupere contenu 
+	  //ecrit dans le rapport
+	  break;
+	case 5:
 	  break;
 	default:
 	  break;
