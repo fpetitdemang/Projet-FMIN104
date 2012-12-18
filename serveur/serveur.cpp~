@@ -76,17 +76,18 @@ int AutorisationConnexion(int p){
 
 void *thread_client(void *p){
 
-	int auth = AutorisationConnexion((int)p);
-	cout<<"retour authentification : "<<auth<<endl;
-	if (auth == 1){
-		SubjectClient client((int)p);
-		Employe Traitement(&client);
-		client.run();
-	}else{
-	cout<<"Fermeture connexion : identification incorrect"<<endl;
-	close((int)p);
-	}
+  int auth = AutorisationConnexion((int)p);
+  cout<<"retour authentification : "<<auth<<endl;
+  if (auth == 1){
+    SubjectClient client((int)p, "nordine");
+    Employe Traitement(&client);
 
+    client.ouvreRapport();
+    client.run();
+  }else{
+    cout<<"Fermeture connexion : identification incorrect"<<endl;
+    close((int)p);
+  }
 
 }
 

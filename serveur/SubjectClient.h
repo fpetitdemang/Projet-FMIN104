@@ -16,6 +16,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <string.h>
+#include "fournisSujet1/sauvegarde.h"
 
 class SubjectClient : public Subject{
 private :
@@ -23,6 +24,7 @@ private :
   Message msgR;
   char nom[20];
   int descPdf;//file descritpeur sur le fichier pdf
+  bool connecter;
 
 public:
 	SubjectClient();
@@ -33,6 +35,9 @@ public:
 	virtual void run();
 	virtual int ecrireRapport(char* chaine);
 	virtual int  ouvreRapport();
+	virtual int envoieRapport();
+	//virtual int Connexion();
+	virtual int Deconnexion();
 	virtual ~SubjectClient();
 
 };
