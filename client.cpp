@@ -46,6 +46,9 @@ int Identif(int brclient)
   int tailleMsg;
   char chaine[20];
   int descBrCli = brclient;
+	
+
+
 
 	printf("n° identifiant : ");
   scanf("%s", chaine);
@@ -86,38 +89,76 @@ int Identif(int brclient)
 												return -1;
 												}else{
 															int retour = typeR;
-															//cout <<rep<<endl;
+														  //cout <<rep<<endl;
 															cout <<retour<<endl;
 															return retour;
 															}
 										}
 								}
 						}
-}
 
+}
 
 /******** Demande de redaction aupres du serveur *****/
 
-int DemandeRedac()
+int Redac(int brclient)
 {
 
-
-/*** 
-		envoi de la demande de redac
-		Et attente de retour 1 ou 0 
-***/
-
-
-	int typeR = 9;
-  send(descBrCli, &typeR, sizeof(int), 0);
-	cout<<" **************************** "<<endl;
-	cout<<" Demande de redaction envoyer "<<endl;
-	cout<<" **************************** "<<endl;
+	int typeR;
+  int tailleMsg;
+  char chaine[255];
+  int descBrCli = brclient;
 	
-	//int rep = recv(descBrCli, &reponse, sizeof(reponse), 0); 
-	int rep;
 
-return rep;
+
+  while (true)
+	{
+	printf("votre Redaction : ");
+  scanf("%s", chaine);
+	tailleMsg = sizeof(chaine);
+	typeR = 9;
+	
+	if(strcmp(chaine,"fini") == 0)
+		{
+		cout<<" *****fini** "<<endl;
+		return 1;
+		}else
+		{
+/***** Envoi du message ***/
+
+  	int sendTy =  send(descBrCli, &typeR, sizeof(int), 0);	
+		if(sendTy  < 0)
+			{
+			perror("1 envoi");
+			return -1;
+			}else{
+						int sendTailleMsg = send(descBrCli, &tailleMsg, sizeof(int), 0);
+						if(sendTailleMsg  < 0)
+						{
+						perror("2 envoi");
+						return -1;
+						}else{
+								int sendChaine = send(descBrCli, chaine, sizeof(chaine), 0); 
+								if(sendChaine  < 0)
+								{
+									perror(" 3 envoi");
+									return -1;
+									}else{
+
+											cout<<" **************** "<<endl;
+											cout<<" Redaction Envoyé "<<endl;
+											cout<<" **************** "<<endl;
+											
+
+}
+			}
+		}
+
+	}
+}
+return 1;
+
+
 }
 
 /******** Redaction des bloc rapport aupres du serveur *****/
@@ -249,11 +290,16 @@ int main(int argc, char *argv[]){
 				{
  					 int reponseIdent = Identif(descBrCli);
 					 if(reponseIdent != 6)
-					 {
-							 perror("Probleme d'Identification");
+					 {		
+							 
+							 cout<<"Connection non accorder "<<endl;
 							 exit(1);
+							 
+							 
 					 }else
 								{
+									while(true)
+									{
 									cout<<" **************************************** "<<endl;
 									cout<<" Vous etez identifier aupres du serveur ! "<<endl;
 									cout<<" Quoi faire taper le numero correspondant "<<endl;
@@ -269,7 +315,7 @@ int main(int argc, char *argv[]){
 			
 									if(faire == 9)
 									{
-										int reponseRedac = DemandeRedac();
+										int reponseRedac = Redac(descBrCli);
 										if(reponseRedac != 1)
 										{	
 											 perror(" Demande de redaction ");
