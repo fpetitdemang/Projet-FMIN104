@@ -62,6 +62,7 @@ int SubjectClient::envoieRapport(){
   ifstream fichierPdf("nordine/temp.pdf");
   fichierPdf.seekg(0,ios::end);
   int taillePdf = fichierPdf.tellg();
+  fichierPdf.seekg(0,ios::beg);
   //fichierPdfLecture.close();
 
   cout<<"taille pdf envoyé"<<taillePdf<<endl;
