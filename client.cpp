@@ -31,94 +31,68 @@ using namespace std;
 
 int descBrCli;
 int identifier = 0;
+int	taille = 255;
 
 
 
 /*************Fonction****************/
 
-
-/********* Demande de connection ********/
-
-int DemandeConnect()
-{
-
-	cout<<"  *************************************** "<<endl;
-	cout<< " --------  DEMANDE DE CONNECTION -------"<<endl;
-	cout<<"  *************************************** "<<endl;
-	char HOST[255];
-  int PORTC;
-  int PORTS;
-	
-
-  printf("n° BR client : ");
-	
-  scanf("%i", &PORTC);
-
-  printf("n° BR serveur : ");
-  scanf("%i", &PORTS);
-
-  printf("adresse serveur : ");
-  scanf("%s", HOST);
-	
-	cout<<" ******************* "<<endl;
-  cout << " Client en route " << endl;
-  cout << " =============== \n" << endl;
-  
-	/*
-  
-  //Demande Boite Reseau Privée
-  Sock brCli(SOCK_STREAM,PORTC,0);
-  int descBrCli;
-  if(brCli.good()){
-    descBrCli = brCli.getsDesc();
-    perror("Creation BR privee");  
-  }else{
-    perror("Creation BR privee");  
-    exit(1);
-  }
-  
-  //BR distante
-  SockDist brPub(HOST, (short)PORTS);
-  struct sockaddr_in *adrBrPub= brPub.getAdrDist();
-  int lgAdrBrPub=sizeof(struct sockaddr_in);
-
-  
-  //Demande de connexion
-  if (connect(descBrCli,(struct sockaddr *)adrBrPub, lgAdrBrPub) < 0) {
-    perror("Demande connexion");
-    exit(1);
-  }else{
-    perror("Demande connexion");
-  }
-*/
-return 1;
-  
-}
-
-
 /******** Identification aupres du serveur *****/
 
-int Identif()
+int Identif(int brclient)
 {
-	int IDENT;
+
+	int typeR;
+  int tailleMsg;
+  char chaine[20];
+  int descBrCli = brclient;
+
 	printf("n° identifiant : ");
-  scanf("%i", &IDENT);
-
-// *** envoi de l'identifiant et attente de retour 1 ou 0 ***//
-
-	int Num = IDENT;
-	int typeR = 1;
-  send(descBrCli, &typeR, sizeof(int), 0);
-	send(descBrCli, &Num, sizeof(int), 0);
-	cout<<" ******************* "<<endl;
-	cout<<" Identifiant envoyé "<<endl;
-	cout<<" ******************* "<<endl;
-	//int reponse;
-	//int rep = recv(descBrCli, &reponse, sizeof(reponse), 0); 
-	int rep = 1;
+  scanf("%s", chaine);
+	tailleMsg = sizeof(chaine);
+	typeR = 1;
 
 
-	return rep;
+/***** Envoi du message ***/
+
+  int sendTy =  send(descBrCli, &typeR, sizeof(int), 0);	
+	if(sendTy  < 0)
+		{
+		perror("1 envoi");
+		return -1;
+		}else{
+					int sendTailleMsg = send(descBrCli, &tailleMsg, sizeof(int), 0);
+					if(sendTailleMsg  < 0)
+					{
+					perror("2 envoi");
+					return -1;
+					}else{
+							int sendChaine = send(descBrCli, chaine, sizeof(chaine), 0); 
+							if(sendChaine  < 0)
+							{
+								perror(" 3 envoi");
+								return -1;
+								}else{
+
+											cout<<" ******************* "<<endl;
+											cout<<" Identifiant envoyé "<<endl;
+											cout<<" ******************* "<<endl;
+
+											int rep = recv(descBrCli, &typeR, sizeof(int), 0);
+											if(rep  < 0)
+											{
+												//cout <<typeR<<endl;
+												perror("Probleme reception dans focntion identification");
+												return -1;
+												}else{
+															int retour = typeR;
+															//cout <<rep<<endl;
+															cout <<retour<<endl;
+															return retour;
+															}
+										}
+								}
+						}
 }
 
 
@@ -192,15 +166,63 @@ void Deconnection()
 
 int main(int argc, char *argv[]){
 
-//char Recep[256];
-//int res = recv (descrBR
+
+	cout<<"  *************************************** "<<endl;
+	cout<< " --------  DEMANDE DE CONNECTION -------"<<endl;
+	cout<<"  *************************************** "<<endl;
+	char HOST[255];
+  int PORTC;
+  int PORTS;
+	
+
+  printf("n° BR client : ");
+	
+  scanf("%i", &PORTC);
+
+  printf("n° BR serveur : ");
+  scanf("%i", &PORTS);
+
+  printf("adresse serveur : ");
+  scanf("%s", HOST);
+	
+	cout<<" ******************* "<<endl;
+  cout << " Client en route " << endl;
+  cout << " =============== \n" << endl;
   
+	
+  
+  //Demande Boite Reseau Privée
+  Sock brCli(SOCK_STREAM,PORTC,0);
+  int descBrCli;
+  if(brCli.good()){
+    descBrCli = brCli.getsDesc();
+  
+  }else{
+    perror("Creation BR privee");  
+    exit(1);
+  }
+  
+  //BR distante
+  SockDist brPub(HOST, (short)PORTS);
+  struct sockaddr_in *adrBrPub= brPub.getAdrDist();
+  int lgAdrBrPub=sizeof(struct sockaddr_in);
+
+  
+  //Demande de connexion
+  if (connect(descBrCli,(struct sockaddr *)adrBrPub, lgAdrBrPub) < 0) {
+    perror("Demande connexion");
+    exit(1);
+  }else{
+    perror("Demande connexion");
+  }
+
+
 	int faire;
 	cout<<" **************************************** "<<endl;
 	cout<<" Quoi faire taper le numero correspondant "<<endl;
 	cout<<" **************************************** "<<endl;
-	cout<<" 1 demande de connection"<<endl;	
-  //cout<<"9 demande de redaction "<<endl;
+	cout<<" 1 demande d'identification "<<endl;	
+
 
   scanf("%i", &faire);
 
@@ -210,21 +232,23 @@ int main(int argc, char *argv[]){
 
  ******/
 
-
+/*
 	if(faire == 1)
 	{
 		int reDemmande = DemandeConnect();
 		if(reDemmande != 1)
 		{
    		 cout<<" ********************* "<<endl;
-			 perror("Demande de connection");
+			 perror("Demande d'identication");
 			 cout<<" ********************* "<<endl;
 			 exit(1);
 			
 		}else
-					{
- 					 int reponseIdent = Identif();
-					 if(reponseIdent != 1)
+					{*/
+				if(faire == 1)
+				{
+ 					 int reponseIdent = Identif(descBrCli);
+					 if(reponseIdent != 6)
 					 {
 							 perror("Probleme d'Identification");
 							 exit(1);
@@ -246,7 +270,7 @@ int main(int argc, char *argv[]){
 									if(faire == 9)
 									{
 										int reponseRedac = DemandeRedac();
-										if(reDemmande != 1)
+										if(reponseRedac != 1)
 										{	
 											 perror(" Demande de redaction ");
 									 		 exit(1);
@@ -259,11 +283,10 @@ int main(int argc, char *argv[]){
 									
 										
 								}
+		}
 
 								
-				
-  				}
-}
+
 
 
 

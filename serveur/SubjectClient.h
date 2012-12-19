@@ -16,6 +16,8 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <string.h>
+#include <fstream>
+#include <iostream>
 #include "fournisSujet1/sauvegarde.h"
 
 class SubjectClient : public Subject{
@@ -36,7 +38,7 @@ public:
 	virtual int ecrireRapport(char* chaine);
 	virtual int  ouvreRapport();
 	virtual int envoieRapport();
-	//virtual int Connexion();
+	virtual int Connexion();
 	virtual int Deconnexion();
 	virtual ~SubjectClient();
 

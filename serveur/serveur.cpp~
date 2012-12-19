@@ -17,8 +17,13 @@
 
 #include <stdlib.h>
 
-char controleur[20] = "controleur";
+
 char employe[20] = "employe";
+
+vector<int> lThread;
+vector<char>lEmploye("franck", "nordine");
+char controleur[20] = "controleur";
+
 
 bool recherche(char *chaine){
   return true;
@@ -76,19 +81,19 @@ int AutorisationConnexion(int p){
 
 void *thread_client(void *p){
 
-  int auth = AutorisationConnexion((int)p);
+  /*int auth = AutorisationConnexion((int)p);
   cout<<"retour authentification : "<<auth<<endl;
-  if (auth == 1){
+  if (auth == 1){*/
     SubjectClient client((int)p, "nordine");
     Employe Traitement(&client);
-
-    client.ouvreRapport();
+    //client.Connexion();
     client.run();
-  }else{
+    /*}else{
     cout<<"Fermeture connexion : identification incorrect"<<endl;
     close((int)p);
-  }
-
+    }*/
+    cout<<"Fermeture Thread client"<<endl;
+    pthread_exit(NULL);
 }
 
 
@@ -97,6 +102,7 @@ void *thread_client(void *p){
 
 
 int main(){
+
 
   int PORT;
   

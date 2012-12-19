@@ -83,7 +83,7 @@ int main(int argc, char *argv[]){
   send(descBrCli, chaine, sizeof(chaine), 0);
   
   //Recupere rapport
-  int typeRecept = 10
+  int typeRecept = 10;
   cout<<"demande rapport : "<<typeR<<endl;
   
   cout<<recv(descBrCli, &typeRecept, sizeof(int), 0)<<endl;
