@@ -31,10 +31,10 @@ int main(int argc, char *argv[]){
   char HOST[255];
   int PORTC;
   int PORTS;
-  printf("n¬∞ BR client : ");
+  printf("nÅ∞ BR client : ");
   scanf("%i", &PORTC);
 
-  printf("n¬∞ BR serveur : ");
+  printf("nÅ∞ BR serveur : ");
   scanf("%i", &PORTS);
 
   printf("adresse serveur : ");
@@ -45,7 +45,7 @@ int main(int argc, char *argv[]){
   
 
   
-  //Demande Boite Reseau Priv√©e
+  //Demande Boite Reseau PrivÅÈe
   Sock brCli(SOCK_STREAM,PORTC,0);
   int descBrCli;
   if(brCli.good()){
@@ -82,11 +82,19 @@ int main(int argc, char *argv[]){
   send(descBrCli, &tailleMsg, sizeof(int), 0);	
   send(descBrCli, chaine, sizeof(chaine), 0);
   
-  //Recupere rapport
-  int typeRecept = 10
-  cout<<"demande rapport : "<<typeR<<endl;
+  //recueper reponse authentif
+  recv(descBrCli, &typeR, sizeof(int), 0);
+
   
-  cout<<recv(descBrCli, &typeRecept, sizeof(int), 0)<<endl;
+  //Envoie requete demande rapport
+  typeR = 10;
+  send(descBrCli, &typeR, sizeof(int), 0);
+  send(descBrCli, &tailleMsg, sizeof(int), 0);	
+  send(descBrCli, chaine, sizeof(chaine), 0);
+  
+  
+  //Recupere rapport
+  cout<<recv(descBrCli, &typeR, sizeof(int), 0)<<endl;
   cout<<"Type recut :"<<typeR<<endl;
   cout<<recv(descBrCli, &tailleMsg, sizeof(int), 0)<<endl;
   cout<<"Taille : "<<tailleMsg<<endl;
@@ -95,13 +103,17 @@ int main(int argc, char *argv[]){
   ofstream flux("teste.pdf");
   char car;
   
-  while(tailleMsg >= 0){
-    
-    recv(descBrCli, &car, sizeof(char), 0);
+  while(tailleMsg > 0){
+    cout<<"attend reception"<<endl;
+    if (recv(descBrCli, &car, sizeof(char), 0) !=  0) perror("rcv");
     flux<<car;
-    tailleMsg++;
+    tailleMsg--;
+    cout<<tailleMsg<<endl;
   }
   
+  flux.close();
+  close(descBrCli);
+
   return 0;
 }
 

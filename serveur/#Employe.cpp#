@@ -1,7 +1,7 @@
 /*
  * Employe.cpp
  *
- *  Created on: 11 dÃ©c. 2012
+ *  Created on: 11 déc. 2012
  *      Author: franck
  */
 
@@ -11,7 +11,7 @@ Employe::Employe(SubjectClient* cli) : Reponse(cli){}
 
 void Employe::TraitementMsg() {
 	Message msgR = _subjet->getMessage();
-	cout<<"Message ReÃ§ut :\n"<<endl;
+	cout<<"Message Reçut :\n"<<endl;
 	msgR.Affiche();
 
 	switch(msgR.type){

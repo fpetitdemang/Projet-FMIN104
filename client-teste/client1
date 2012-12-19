@@ -9,9 +9,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <pthread.h>
-#include <iostream>
-#include <fstream>
-#include <string>
 
 
 
@@ -72,34 +69,22 @@ int main(int argc, char *argv[]){
   
 	
   
- //Authentif
-  int typeR = 1;
-  int tailleMsg = 20;
-  char chaine[20]="employe";
-  int retour;
+ //Teste envoie msg
+  int typeR;
+  int tailleMsg;
+  char chaine[20];
+  while(1){
+  	printf("type requete : ");
+  	scanf("%i", &typeR);
+	
+	printf("chaine : ");
+	scanf("%s", chaine);
 
-  send(descBrCli, &typeR, sizeof(int), 0);
-  send(descBrCli, &tailleMsg, sizeof(int), 0);	
-  send(descBrCli, chaine, sizeof(chaine), 0);
-  
-  //Recupere rapport
-  int typeRecept = 10
-  cout<<"demande rapport : "<<typeR<<endl;
-  
-  cout<<recv(descBrCli, &typeRecept, sizeof(int), 0)<<endl;
-  cout<<"Type recut :"<<typeR<<endl;
-  cout<<recv(descBrCli, &tailleMsg, sizeof(int), 0)<<endl;
-  cout<<"Taille : "<<tailleMsg<<endl;
-  
-  
-  ofstream flux("teste.pdf");
-  char car;
-  
-  while(tailleMsg >= 0){
-    
-    recv(descBrCli, &car, sizeof(char), 0);
-    flux<<car;
-    tailleMsg++;
+	tailleMsg = sizeof(chaine);
+
+  	send(descBrCli, &typeR, sizeof(int), 0);
+	send(descBrCli, &tailleMsg, sizeof(int), 0);	
+  	send(descBrCli, chaine, sizeof(chaine), 0);
   }
   
   return 0;
