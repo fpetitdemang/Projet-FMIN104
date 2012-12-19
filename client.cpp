@@ -298,8 +298,7 @@ int main(int argc, char *argv[]){
 							 
 					 }else
 								{
-									while(true)
-									{
+									
 									cout<<" **************************************** "<<endl;
 									cout<<" Vous etez identifier aupres du serveur ! "<<endl;
 									cout<<" Quoi faire taper le numero correspondant "<<endl;
