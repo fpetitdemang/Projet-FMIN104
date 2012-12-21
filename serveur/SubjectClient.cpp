@@ -27,7 +27,16 @@ void SubjectClient::run(){
 	//Se met en lecture sur la boite de reception//
   while(connecter){
     printf("Thread client en attente de reception :\n");
-    msgR = Message(descBr);//generer exeption
+    
+    try{
+      msgR = Message(descBr);//generer exeption
+    }catch(int  &descr){
+      perror("recv");
+      close(descBr);
+      cout<<"Fermeture connection client"<<endl;
+      pthread_exit(NULL);
+    }
+  }
     //remettre dans un etat coherent la reception des msg
     
     //averti observeur de la reception du msg

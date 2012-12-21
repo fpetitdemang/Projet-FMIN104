@@ -21,52 +21,28 @@ Message::Message(int type, int taille, char *chaine){
 
 Message::Message(int descBr){
 
-			int reception = recv(descBr, &type, sizeof(int), 0);
+  int reception = recv(descBr, &type, sizeof(int), 0);
+  if (reception < 0) throw reception;
 
-		    /*Traitement cas erreurs*/
-		    if (reception < 0){
-		      perror("recv");
-		      close(descBr);
-		      cout<<"Fermeture connection client"<<endl;
-		      pthread_exit(NULL);
-		    }
+  //Lit taille msg a lire//
+  reception = recv(descBr, &taille, sizeof(int), 0);
+  if (reception < 0) throw reception;
+    
 
-		    if(reception == 0){
-		      perror("send");
-		      cout<<"Fermeture connection client"<<endl;
-		      pthread_exit(NULL);
-		    }
-		    /*Fin traitement cas erreurs*/
+  //Recupere msg de la requete
+  chaine =(char *) malloc(taille);
+  
+  reception = recv(descBr, chaine, taille, 0);
+  if (reception < 0) throw reception;
 
-		    //Lit taille msg a lire//
-		     reception = recv(descBr, &taille, sizeof(int), 0);
-
-		     /*Traitement erreur*/
-		    if (reception < 0){
-		      perror("recv");
-		      close(descBr);
-		      cout<<"Fermeture connection client"<<endl;
-		      pthread_exit(NULL);
-		    }
-
-		    if(reception == 0){
-		      perror("send");
-		      cout<<"Fermeture connection client"<<endl;
-		      pthread_exit(NULL);
-		    }
-
-		    //Recupere msg de la requete
-		    chaine =(char *) malloc(taille);
-
-		    reception = recv(descBr, chaine, taille, 0);
-
-		    /*Traitement erreur*/
-		    if (reception < 0){
-		      perror("recv");
-		      close(descBr);
-		      cout<<"Fermeture connection client"<<endl;
-		      pthread_exit(NULL);
-		    }
+  /*
+    if (reception < 0){
+    perror("recv");
+    close(descBr);
+    cout<<"Fermeture connection client"<<endl;
+    pthread_exit(NULL);
+    }
+  */
 }
 
 void Message::Affiche(){
