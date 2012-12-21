@@ -65,19 +65,19 @@ int Identif(int brclient)
   int sendTy =  send(descBrCli, &typeR, sizeof(int), 0);	
 	if(sendTy  < 0)
 		{
-		perror("1 envoi");
+		perror("1 Identif");
 		return -1;
 		}else{
 					int sendTailleMsg = send(descBrCli, &tailleMsg, sizeof(int), 0);
 					if(sendTailleMsg  < 0)
 					{
-					perror("2 envoi");
+					perror("2 Identif");
 					return -1;
 					}else{
 							int sendChaine = send(descBrCli, chaine, sizeof(chaine), 0); 
 							if(sendChaine  < 0)
 							{
-								perror(" 3 envoi");
+								perror(" 3 Identif");
 								return -1;
 								}else{
 
@@ -165,13 +165,10 @@ return 1;
 
 }
 
-/******** Redaction des bloc rapport aupres du serveur *****/
-
-
 
 /******** Demande de sauvegarde du rapport apres du serveur *****/
 
-int EnvoiRapport(int brclient)
+int SauvRapport(int brclient)
 {
 	int typeR;
   int tailleMsg;
@@ -181,53 +178,96 @@ int EnvoiRapport(int brclient)
 	tailleMsg = sizeof(chaine);
 	typeR = 10;
 
-/***** Envoi du message ***/
-
-  	int sendTy =  send(descBrCli, &typeR, sizeof(int), 0);	
+	int sendTy =  send(descBrCli, &typeR, sizeof(int), 0);	
 		if(sendTy  < 0)
 			{
-			perror("1 envoi");
+			perror("1 Sauve rapport");
 			return -1;
 			}else{
 						int sendTailleMsg = send(descBrCli, &tailleMsg, sizeof(int), 0);
 						if(sendTailleMsg  < 0)
 						{
-						perror("2 envoi");
+						perror("2 Sauve rapport");
 						return -1;
 						}else{
 								int sendChaine = send(descBrCli, chaine, sizeof(chaine), 0); 
 								if(sendChaine  < 0)
 								{
-									perror(" 3 envoi");
+									perror(" 3 Sauve rapport");
 									return -1;
 									}else{
 
 											cout<<" **************** "<<endl;
-											cout<<" demande envoyé "<<endl;
+											cout<<" Sauvegarde envoyé "<<endl;
+											cout<<" **************** "<<endl;
+											return 1;
+												}
+									}
+							}
+}
+
+
+
+/******** Demande d'Envoi du rapport apres du serveur *****/
+
+int EnvoiRapport(int brclient)
+{
+	int typeR;
+  int tailleMsg;
+  char chaine[20];
+  int descBrCli = brclient;
+	
+	tailleMsg = sizeof(chaine);
+	typeR = 11;
+
+/***** Envoi du message ***/
+
+  	int sendTy =  send(descBrCli, &typeR, sizeof(int), 0);	
+		if(sendTy  < 0)
+			{
+			perror("1 Envoirapport");
+			return -1;
+			}else{
+						int sendTailleMsg = send(descBrCli, &tailleMsg, sizeof(int), 0);
+						if(sendTailleMsg  < 0)
+						{
+						perror("2 Envoi rapport");
+						return -1;
+						}else{
+								int sendChaine = send(descBrCli, chaine, sizeof(chaine), 0); 
+								if(sendChaine  < 0)
+								{
+									perror(" 3 Envoi rapport");
+									return -1;
+									}else{
+
+											cout<<" **************** "<<endl;
+											cout<<" Envoi envoyé "<<endl;
 											cout<<" **************** "<<endl;
 										
-//Recupere rapport
-  cout<<recv(descBrCli, &typeR, sizeof(int), 0)<<endl;
-  cout<<"Type recut :"<<typeR<<endl;
-  cout<<recv(descBrCli, &tailleMsg, sizeof(int), 0)<<endl;
-  cout<<"Taille : "<<tailleMsg<<endl;
-  
-  
-  ofstream flux("teste.pdf");
-  char car;
-  
-  while(tailleMsg > 0){
-    cout<<"attend reception"<<endl;
-    if (recv(descBrCli, &car, sizeof(char), 0) != 0) perror("rcv");
-    flux<<car;
-    tailleMsg--;
-    cout<<tailleMsg<<endl;
-  }
-  
-  flux.close();
-  close(descBrCli);
 
-return 1;
+ 											//Recupere rapport
+ 											int typeRecept = 10;
+  										cout<<"Demande rapport : "<<typeR<<endl;
+  
+  										cout<<recv(descBrCli, &typeRecept, sizeof(int), 0)<<endl;
+  										cout<<"Type recut :"<<typeR<<endl;
+  										cout<<recv(descBrCli, &tailleMsg, sizeof(int), 0)<<endl;
+  										cout<<"Taille : "<<tailleMsg<<endl;
+  
+  
+  										ofstream flux("teste.pdf");
+  										char car;
+  
+  										while(tailleMsg >= 0)
+											{
+    
+    									recv(descBrCli, &car, sizeof(char), 0);
+    									flux<<car;
+    									tailleMsg++;
+  										}
+
+										return 1;
 
 								}
 						}
@@ -257,8 +297,6 @@ void Deconnection()
 
 	exit(1);
 }
-
-
 
 
 /************************** Main ********************/
@@ -388,7 +426,8 @@ int main(int argc, char *argv[]){
 												cout<<" **************************************** "<<endl;
 												cout<<" 9 : Demande de redaction "<<endl;
 												cout<<" 2 : Demande de  deconnection "<<endl;
-												cout<<" 10 : Sauvegarde + envoie rapport "<<endl;
+												cout<<" 10 : Sauvegarde rapport "<<endl;
+												cout<<" 11 : Envoie rapport "<<endl;
 												scanf("%i", &faire);
 												if(faire == 2)
 												{
@@ -397,14 +436,22 @@ int main(int argc, char *argv[]){
 			
 												if(faire == 9)
 												{
-												int reponseRedac = Redac(descBrCli);
+												Redac(descBrCli);
 												}
 											 
  												if(faire == 10)
 												{
-												int RepRapportEnv = EnvoiRapport(descBrCli);
+												int RepSauvRapport = SauvRapport(descBrCli);
 
-											}
+												}
+											
+ 												if(faire == 11 and RepSauvRapport == 1 )
+												{
+												 EnvoiRapport(descBrCli);
+												}else
+														 {
+															cout<<"effectuer une sauvegarde avant"<<endl;
+														 }
 									}
 }
 }

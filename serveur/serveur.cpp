@@ -57,6 +57,11 @@ void *thread_client(void *p){
 
 
 
+/* 
+
+Fonction main()
+
+*/
 
 int main(){
 
