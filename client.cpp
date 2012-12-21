@@ -18,6 +18,10 @@
 #include <string.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <iostream>
+#include <fstream>
+#include <string>
+
 
 #include "Sock/sock.h"
 #include "Sock/sockdist.h"
@@ -163,17 +167,71 @@ return 1;
 
 /******** Redaction des bloc rapport aupres du serveur *****/
 
-void Redac()
-{
 
-
-
-}
 
 /******** Demande de sauvegarde du rapport apres du serveur *****/
 
-void Sauvegarde()
+int EnvoiRapport(int brclient)
 {
+	int typeR;
+  int tailleMsg;
+  char chaine[20];
+  int descBrCli = brclient;
+	
+	tailleMsg = sizeof(chaine);
+	typeR = 10;
+
+/***** Envoi du message ***/
+
+  	int sendTy =  send(descBrCli, &typeR, sizeof(int), 0);	
+		if(sendTy  < 0)
+			{
+			perror("1 envoi");
+			return -1;
+			}else{
+						int sendTailleMsg = send(descBrCli, &tailleMsg, sizeof(int), 0);
+						if(sendTailleMsg  < 0)
+						{
+						perror("2 envoi");
+						return -1;
+						}else{
+								int sendChaine = send(descBrCli, chaine, sizeof(chaine), 0); 
+								if(sendChaine  < 0)
+								{
+									perror(" 3 envoi");
+									return -1;
+									}else{
+
+											cout<<" **************** "<<endl;
+											cout<<" demande envoyé "<<endl;
+											cout<<" **************** "<<endl;
+										
+//Recupere rapport
+  cout<<recv(descBrCli, &typeR, sizeof(int), 0)<<endl;
+  cout<<"Type recut :"<<typeR<<endl;
+  cout<<recv(descBrCli, &tailleMsg, sizeof(int), 0)<<endl;
+  cout<<"Taille : "<<tailleMsg<<endl;
+  
+  
+  ofstream flux("teste.pdf");
+  char car;
+  
+  while(tailleMsg > 0){
+    cout<<"attend reception"<<endl;
+    if (recv(descBrCli, &car, sizeof(char), 0) != 0) perror("rcv");
+    flux<<car;
+    tailleMsg--;
+    cout<<tailleMsg<<endl;
+  }
+  
+  flux.close();
+  close(descBrCli);
+
+return 1;
+
+								}
+						}
+					}
 
 }
 
@@ -298,8 +356,7 @@ int main(int argc, char *argv[]){
 							 
 					 }else
 								{
-									while(true)
-									{
+									
 									cout<<" **************************************** "<<endl;
 									cout<<" Vous etez identifier aupres du serveur ! "<<endl;
 									cout<<" Quoi faire taper le numero correspondant "<<endl;
@@ -322,10 +379,35 @@ int main(int argc, char *argv[]){
 									 		 exit(1);
 										}else
 											{
-												cout<<" Demande de redaction autorise ! "<<endl;
-												Redac();
+												cout<<" ecriture du raport terminer ! "<<endl;
+												while(1)
+												
+												{
+												cout<<" **************************************** "<<endl;
+												cout<<" Quoi faire taper le numero correspondant "<<endl;
+												cout<<" **************************************** "<<endl;
+												cout<<" 9 : Demande de redaction "<<endl;
+												cout<<" 2 : Demande de  deconnection "<<endl;
+												cout<<" 10 : Sauvegarde + envoie rapport "<<endl;
+												scanf("%i", &faire);
+												if(faire == 2)
+												{
+												Deconnection();
+												}
+			
+												if(faire == 9)
+												{
+												int reponseRedac = Redac(descBrCli);
+												}
+											 
+ 												if(faire == 10)
+												{
+												int RepRapportEnv = EnvoiRapport(descBrCli);
+
 											}
 									}
+}
+}
 									
 										
 								}
