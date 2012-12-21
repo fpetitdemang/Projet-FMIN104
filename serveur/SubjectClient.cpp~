@@ -56,8 +56,32 @@ char* SubjectClient::getNom(){
 }
 
 int SubjectClient::envoieRapport(){
-  //decoupe pdf en bloc 
-  //envoie le pdf
+
+  //recupere descripteur en lecture sur le pdf 
+  string cheminPdf = (string)nom + "/" "temp.pdf";
+  ifstream fichierPdf("nordine/temp.pdf");
+  fichierPdf.seekg(0,ios::end);
+  int taillePdf = fichierPdf.tellg();
+  fichierPdf.seekg(0,ios::beg);
+  //fichierPdfLecture.close();
+
+  cout<<"taille pdf envoyé"<<taillePdf<<endl;
+
+  //envoie typeRequete
+  int typeR = 11;
+  send(descBr,&typeR,sizeof(int),0);
+
+  //envoie taillePdf
+  send(descBr,&taillePdf,sizeof(int),0);
+
+  char car;
+  //envoie pdf octet par octet
+  while(fichierPdf.get(car))
+    {
+      send(descBr,&car,sizeof(char),0);
+    }
+
+  
   return -1;
 }
 
@@ -69,7 +93,7 @@ int SubjectClient::Deconnexion(){
   return retour;
 }
 
-/*int SubjectClient::Connexion(){
+int SubjectClient::Connexion(){
 	int compt = 0;
 
 	int retour = -1;
@@ -105,7 +129,7 @@ int SubjectClient::Deconnexion(){
 	//retourne -1 si client non identifier
 	return -1;
 
-	}*/
+	}
 
 SubjectClient::~SubjectClient() {
 	// TODO Auto-generated destructor stub

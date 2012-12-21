@@ -1,7 +1,7 @@
 /*
  * Message.cpp
  *
- *  Created on: 8 dÃ©c. 2012
+ *  Created on: 8 déc. 2012
  *      Author: franck
  */
 
@@ -22,18 +22,16 @@ Message::Message(int type, int taille, char *chaine){
 Message::Message(int descBr){
 
   int reception = recv(descBr, &type, sizeof(int), 0);
-  if (reception < 0) throw reception;
+  if (reception < 0) throw 
 
   //Lit taille msg a lire//
   reception = recv(descBr, &taille, sizeof(int), 0);
-  if (reception < 0) throw reception;
-    
+  
 
   //Recupere msg de la requete
   chaine =(char *) malloc(taille);
-  
+
   reception = recv(descBr, chaine, taille, 0);
-  if (reception < 0) throw reception;
 
   /*
     if (reception < 0){
@@ -43,6 +41,7 @@ Message::Message(int descBr){
     pthread_exit(NULL);
     }
   */
+
 }
 
 void Message::Affiche(){
