@@ -17,18 +17,22 @@ void Employe::TraitementMsg() {
 	switch(msgR.type){
 
 	case 7://deconnexion
+	  cout<<"Deconnexion"<<endl;
 	  _subjet->Deconnexion();
 	  break;
 	  
 	case 9://reception section rapport
+	  cout<<"Reception bloc de section de rapport"<<endl;
 	  _subjet->ecrireRapport(msgR.chaine);
 	  break;
 
-	case 10://sauvegarde + envoie rapport
+	case 10://sauvegarde rapport
+	  cout<<"Sauvegarde du rapport"<<endl;
 	  _subjet->ouvreRapport();
-	  _subjet->envoieRapport();
 	  break;
-	  
+
+	case 11://envoie rapport
+	  _subjet->envoieRapport();
 	
 	default://cas d'erreur	  
 	  cout<<"requete pas reconnu"<<endl;
