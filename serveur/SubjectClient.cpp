@@ -15,11 +15,11 @@ SubjectClient::SubjectClient() {
 	descBr = 0;
 }
 
-SubjectClient::SubjectClient(int pDescBr, char * nomClient){
+SubjectClient::SubjectClient(int pDescBr){
 	descBr = pDescBr;
 	descPdf = 0;
 	connecter = true;
-	strcpy(nom,nomClient);
+	//strcpy(nom,nomClient);
 }
 
 
@@ -30,6 +30,9 @@ void SubjectClient::run(){
     
     try{
       msgR = Message(descBr);//generer exeption
+      
+      //averti observeur de la reception du msg
+      Notify();
     }catch(int  &descr){
       perror("recv");
       close(descBr);
@@ -38,18 +41,17 @@ void SubjectClient::run(){
     }
   }
     //remettre dans un etat coherent la reception des msg
-    
-    //averti observeur de la reception du msg
-    Notify();
-  }
+
 }
 
 int SubjectClient::ecrireRapport(char* chaine){
-  return Ecrit(msgR.chaine,nom);
+  return 1;
+  //return Ecrit(msgR.chaine,nom);
 }
 
 int  SubjectClient::ouvreRapport(){
-  return OuvreRapport(nom);
+  return 1;
+  // return OuvreRapport(nom);
 }
 
 Message SubjectClient::getMessage(){
@@ -102,7 +104,7 @@ int SubjectClient::Deconnexion(){
   return retour;
 }
 
-int SubjectClient::Connexion(){
+int SubjectClient::Connexion(vector<string> pListeClientAuth){
 	int compt = 0;
 
 	int retour = -1;
@@ -110,19 +112,28 @@ int SubjectClient::Connexion(){
 	//3 tentatives d'authentification
 	while (compt < 4){
 
+	  //try{
 		Message MsgR(descBr);
+		/*}catch(int  &descBr){
+	    perror("recv");
+	    close(descBr);
+	    cout<<"Phase authentification Fermeture connection client"<<endl;
+	    pthread_exit(NULL);
+	    }*/
 
 		//si paquet identification, traitement
 		if (MsgR.type == 1){
 			//verifie si controleur
 			if (strcmp(MsgR.chaine,"controleur") == 0) {
 				retour = 6;
+				strcpy(nom,"controleur");
 				send(descBr,&retour,sizeof(int),0);
 				return 0;
 			}
 			//verifie si employe
-			if (strcmp(MsgR.chaine,"employe") == 0) {
+			if(RechercheListeClientAuth(pListeClientAuth, MsgR.chaine))  {
 				retour = 6;
+				strcpy(nom,MsgR.chaine);
 				send(descBr,&retour,sizeof(int),0);
 				return 1;
 			}
@@ -139,6 +150,15 @@ int SubjectClient::Connexion(){
 	return -1;
 
 	}
+
+bool SubjectClient:: RechercheListeClientAuth(vector<string> pListeClientAuth, char* chaine){
+
+  for(int i(0); i<pListeClientAuth.size(); ++i)
+   {
+     if (pListeClientAuth[i] == (string)chaine) return true;
+   }
+  return false;
+}
 
 SubjectClient::~SubjectClient() {
 	// TODO Auto-generated destructor stub

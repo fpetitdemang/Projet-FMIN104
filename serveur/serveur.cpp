@@ -20,8 +20,10 @@
 
 char employe[20] = "employe";
 
-//vector<int> lThread;
-//vector<char>lEmploye[20]("franck");
+
+vector<string> lEmploye;
+
+
 char controleur[20] = "controleur";
 
 
@@ -37,22 +39,32 @@ using namespace std;
 
 
 void *thread_client(void *p){
-
-  /*int auth = AutorisationConnexion((int)p);
-  cout<<"retour authentification : "<<auth<<endl;
-  if (auth == 1){*/
-    SubjectClient client((int)p, "nordine");
-    Employe Traitement(&client);
-    client.Connexion();
-    client.run();
-    /*}else{
-    cout<<"Fermeture connexion : identification incorrect"<<endl;
-    close((int)p);
+ 
+  SubjectClient client((int)p);
+  Employe Traitement(&client);
+  client.Connexion(lEmploye);
+  
+  /*switch(client.Connexion(lEmploye)){
+    
+ case 1 :     //Lance traitement msg Employe
+   Traitement = Employe(&client);
+     break;
+  case 2:  //Lance traitement msg Controler
+    break;
+  default:
+    cout<<"Echec identification client"<<endl;
+    cout<<"Fermeture Thread de service"<<endl;
+    close((int) p);
+    pthread_exit(NULL);
+    break;
     }*/
+  
+    client.run();
+    
     cout<<"Fermeture Thread client"<<endl;
     pthread_exit(NULL);
 }
-
+  
 
 
 
@@ -64,7 +76,9 @@ Fonction main()
 */
 
 int main(){
-
+  
+  lEmploye.push_back("nordine");
+  lEmploye.push_back("franck");
 
   int PORT;
   

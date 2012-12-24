@@ -18,7 +18,7 @@
 #include <string.h>
 #include <fstream>
 #include <iostream>
-#include "fournisSujet1/sauvegarde.h"
+//#include "fournisSujet1/sauvegarde.h"
 
 class SubjectClient : public Subject{
 private :
@@ -30,7 +30,7 @@ private :
 
 public:
 	SubjectClient();
-	SubjectClient(int pDescBr, char * nomClient);
+	SubjectClient(int pDescBr);
 	virtual Message getMessage();
 	virtual char* getNom();
 	virtual int getDescrPdf();
@@ -38,8 +38,9 @@ public:
 	virtual int ecrireRapport(char* chaine);
 	virtual int  ouvreRapport();
 	virtual int envoieRapport();
-	virtual int Connexion();
+	virtual int Connexion(vector<string> pListeClientAuth);
 	virtual int Deconnexion();
+	virtual bool RechercheListeClientAuth(vector<string> pListeClientAuth, char* chaine);
 	virtual ~SubjectClient();
 
 };
