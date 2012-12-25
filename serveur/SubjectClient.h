@@ -16,9 +16,10 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <string.h>
+#include "structures.cpp"
 #include <fstream>
 #include <iostream>
-//#include "fournisSujet1/sauvegarde.h"
+#include "fournisSujet1/sauvegarde.h"
 
 class SubjectClient : public Subject{
 private :
@@ -27,10 +28,11 @@ private :
   char nom[20];
   int descPdf;//file descritpeur sur le fichier pdf
   bool connecter;
+  verrou *mes_verrou;
 
 public:
 	SubjectClient();
-	SubjectClient(int pDescBr);
+	SubjectClient(int pDescBr, verrou *m_verrou);
 	virtual Message getMessage();
 	virtual char* getNom();
 	virtual int getDescrPdf();

@@ -21,6 +21,7 @@ Message::Message(int type, int taille, char *chaine){
 
 Message::Message(int descBr){
 
+  //REcupere type de requete
   int reception = recv(descBr, &type, sizeof(int), 0);
   if (reception < 0) throw reception;
 
@@ -31,18 +32,9 @@ Message::Message(int descBr){
 
   //Recupere msg de la requete
   chaine =(char *) malloc(taille);
-  
   reception = recv(descBr, chaine, taille, 0);
   if (reception < 0) throw reception;
 
-  /*
-    if (reception < 0){
-    perror("recv");
-    close(descBr);
-    cout<<"Fermeture connection client"<<endl;
-    pthread_exit(NULL);
-    }
-  */
 }
 
 void Message::Affiche(){

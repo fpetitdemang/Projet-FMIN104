@@ -12,6 +12,7 @@
 #include "../Sock/sock.h"
 #include "../Sock/sockdist.h"
 #include "Observer/Subject.h"
+
 #include "Employe.h"
 
 
@@ -22,7 +23,13 @@ char employe[20] = "employe";
 
 
 vector<string> lEmploye;
+vector<string> lPdf;
+verrou mes_verrous;
 
+
+
+/*pthread_mutex_t VlEmploye = PTHREAD_MUTEX_INITIALIZER;//creation+initialisation verrou pour acces I/O sur la liste des employés
+  pthread_mutex_t VlPdf = PTHREAD_MUTEX_INITIALIZER;//creation+initialisation verrou pour acces I/O sur la liste des pdf créer*/
 
 char controleur[20] = "controleur";
 
@@ -40,9 +47,10 @@ using namespace std;
 
 void *thread_client(void *p){
  
-  SubjectClient client((int)p);
+  SubjectClient client((int)p, &mes_verrous);
   Employe Traitement(&client);
   client.Connexion(lEmploye);
+  cout<<client.getNom()<<" vient de se connecter"<<endl;
   
   /*switch(client.Connexion(lEmploye)){
     
@@ -60,8 +68,8 @@ void *thread_client(void *p){
     }*/
   
     client.run();
-    
-    cout<<"Fermeture Thread client"<<endl;
+    close((int) p);
+    cout<<client.getNom()<<" est deconnecté"<<endl;
     pthread_exit(NULL);
 }
   
@@ -79,6 +87,13 @@ int main(){
   
   lEmploye.push_back("nordine");
   lEmploye.push_back("franck");
+  vector<pthread_t> lThread;
+  
+  //initialisation des verrous
+  pthread_mutex_init(&mes_verrous.VlEmploye, NULL);
+  pthread_mutex_init(&mes_verrous.VlPdf, NULL);
+
+
 
   int PORT;
   
@@ -125,9 +140,19 @@ int main(){
       cout<<"Traitement demande connexion : Ok"<<endl;
     }
     
-    //Creation thread-client
+    //Creation thread service
     pthread_t t1;
-    pthread_create(&t1,NULL,thread_client,(void*)descBrCv);
+    if (pthread_create(&t1,NULL,thread_client,(void*)descBrCv) != 0){
+      cout<<"Erreur création thread service"<<endl;
+      close(descBrCv);
+    }else{
+      lThread.push_back(t1);
+    }
+  }
+  
+  //Attd fin execution thread pour terminer le programme
+  for(int i=0; i<lThread.size(); i++){
+    pthread_join(lThread[i],NULL);
   }
   
   return 0;
