@@ -17,7 +17,9 @@ void Subject::Attach(Observer* o){
 }
 
 void Subject::Detach(Observer* o){
-	//_observers->;
+  for (int(0); _observers.size(); i++){
+    if (_observers[i] == o) _observers.erase(i);
+  }
 }
 
 

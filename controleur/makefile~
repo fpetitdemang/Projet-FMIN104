@@ -1,0 +1,13 @@
+all: controleur.o sock.o sockdist.o
+	g++ controleur.o -o controleur
+
+controleur.o: controleur.cpp
+	g++ -c controleur.cpp	
+
+sock.o: ../Sock/sock.cc ../Sock/sock.h
+	g++ -Wall -c Sock/sock.cc
+
+sockdist.o: ../Sock/sockdist.cc ../Sock/sockdist.h
+	g++ -Wall -c Sock/sockdist.cc
+
+

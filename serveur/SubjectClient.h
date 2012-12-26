@@ -40,9 +40,14 @@ public:
 	virtual int ecrireRapport(char* chaine);
 	virtual int  ouvreRapport();
 	virtual int envoieRapport();
-	virtual int Connexion(vector<string> pListeClientAuth);
+	virtual int envoieRapport(string nom);
+	//rajoute msg.chaine dans liste des employe
+	//retourne -1 en cas erreur, 0 sinon
+	virtual int ajoutEmploye();
+	virtual int envoieLpdfRedige();
+	virtual int Connexion();
 	virtual int Deconnexion();
-	virtual bool RechercheListeClientAuth(vector<string> pListeClientAuth, char* chaine);
+	virtual bool RechercheListeClientAuth(char* chaine);
 	virtual ~SubjectClient();
 
 };

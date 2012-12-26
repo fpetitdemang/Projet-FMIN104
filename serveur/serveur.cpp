@@ -14,29 +14,24 @@
 #include "Observer/Subject.h"
 
 #include "Employe.h"
+#include "Controleur.h"
 
 
 #include <stdlib.h>
 
 
-char employe[20] = "employe";
 
 
-vector<string> lEmploye;
-vector<string> lPdf;
+
 verrou mes_verrous;
 
 
 
-/*pthread_mutex_t VlEmploye = PTHREAD_MUTEX_INITIALIZER;//creation+initialisation verrou pour acces I/O sur la liste des employés
-  pthread_mutex_t VlPdf = PTHREAD_MUTEX_INITIALIZER;//creation+initialisation verrou pour acces I/O sur la liste des pdf créer*/
+
 
 char controleur[20] = "controleur";
 
 
-bool recherche(char *chaine){
-  return true;
-}
 
 using namespace std;
 
@@ -46,18 +41,24 @@ using namespace std;
 
 
 void *thread_client(void *p){
- 
-  SubjectClient client((int)p, &mes_verrous);
-  Employe Traitement(&client);
-  client.Connexion(lEmploye);
-  cout<<client.getNom()<<" vient de se connecter"<<endl;
   
-  /*switch(client.Connexion(lEmploye)){
+  SubjectClient client((int)p, &mes_verrous);
+ 
+  int auth = client.Connexion();
+  
+  Controleur TraitementContr = Controleur(&client);
+  Employe TraitementEmp = Employe(&client);
+  
+
+  switch(auth){
     
- case 1 :     //Lance traitement msg Employe
-   Traitement = Employe(&client);
-     break;
-  case 2:  //Lance traitement msg Controler
+  case 0 :     //Employe
+    client.Detach(&TraitementContr);
+    cout<<client.getNom()<<" vient de se connecter"<<endl;
+    break;
+  case 1:  //Controler
+    client.Detach(&TraitementEmp);
+    cout<<client.getNom()<<" vient de se connecter"<<endl;
     break;
   default:
     cout<<"Echec identification client"<<endl;
@@ -65,7 +66,7 @@ void *thread_client(void *p){
     close((int) p);
     pthread_exit(NULL);
     break;
-    }*/
+    }
   
     client.run();
     close((int) p);
@@ -85,13 +86,14 @@ Fonction main()
 
 int main(){
   
-  lEmploye.push_back("nordine");
-  lEmploye.push_back("franck");
   vector<pthread_t> lThread;
   
   //initialisation des verrous
   pthread_mutex_init(&mes_verrous.VlEmploye, NULL);
   pthread_mutex_init(&mes_verrous.VlPdf, NULL);
+
+  mes_verrous.lEmploye.push_back("nordine");
+  mes_verrous.lEmploye.push_back("franck");
 
 
 

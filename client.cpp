@@ -46,7 +46,7 @@ int	taille = 255;
 int Identif(int brclient)
 {
 
-	int typeR;
+  int typeR;
   int tailleMsg;
   char chaine[20];
   int descBrCli = brclient;

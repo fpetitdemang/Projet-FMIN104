@@ -23,17 +23,22 @@ Message::Message(int descBr){
 
   //REcupere type de requete
   int reception = recv(descBr, &type, sizeof(int), 0);
-  if (reception < 0) throw reception;
+  if (reception <= 0) throw reception;
 
   //Lit taille msg a lire//
   reception = recv(descBr, &taille, sizeof(int), 0);
-  if (reception < 0) throw reception;
+  if (reception <= 0 || taille > 500) throw reception;
     
 
   //Recupere msg de la requete
+  if (taille > 0){
   chaine =(char *) malloc(taille);
   reception = recv(descBr, chaine, taille, 0);
-  if (reception < 0) throw reception;
+  if (reception <= 0) throw reception;
+  }else{
+    chaine = NULL;
+  }
+  
 
 }
 

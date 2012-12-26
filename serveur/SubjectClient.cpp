@@ -44,7 +44,12 @@ int SubjectClient::ecrireRapport(char* chaine){
 }
 
 int  SubjectClient::ouvreRapport(){
-  return OuvreRapport(nom);
+  int res = OuvreRapport(nom);
+  mes_verrou->lPdf.push_back((string)nom);//ajout pdf a la liste de rapportredigé
+  /* for (int i(0);  mes_verrou->lPdf.size() < i; i++){
+    cout<<mes_verrou->lPdf[i]<<endl;
+    }*/
+  return res;
 }
 
 Message SubjectClient::getMessage(){
@@ -59,19 +64,23 @@ char* SubjectClient::getNom(){
   return nom;
 }
 
-
-
 int SubjectClient::envoieRapport(){
+  envoieRapport((string)nom);
+}
+
+int SubjectClient::envoieRapport(string nom){
 
   //recupere descripteur en lecture sur le pdf 
-  string cheminPdf = (string)nom + "/" "temp.pdf";
-  ifstream fichierPdf("nordine/temp.pdf");
+  string cheminPdf = nom + "/" "temp.pdf";
+  ifstream fichierPdf(cheminPdf.c_str());
+
+  //calcule taille
   fichierPdf.seekg(0,ios::end);
   int taillePdf = fichierPdf.tellg();
   fichierPdf.seekg(0,ios::beg);
-  //fichierPdfLecture.close();
 
-  cout<<"taille pdf envoyé"<<taillePdf<<endl;
+
+  cout<<"Taille pdf a envoyé : "<<taillePdf<<endl;
   
   //envoie typeRequete
   int typeR = 11;
@@ -93,17 +102,53 @@ int SubjectClient::envoieRapport(){
 	break;
       }
     }
+  fichierPdf.close();
 
+  cout<<"\""<<this->nom<<"\" a recut le rapport \""<<nom<<"\""<<endl;
+  
   return 0;
 }
 
+int SubjectClient::envoieLpdfRedige(){
+  
+  //envoie typeRequete
+  int typeR = 12;
+  int envoie = send(descBr,&typeR,sizeof(int),0);
+  if (envoie < 0) throw envoie;
+
+  //envoie nb de rapport redige
+  int nbElmt = mes_verrou->lPdf.size();
+  envoie = send(descBr, &nbElmt,sizeof(int),0);
+  if (envoie < 0) throw envoie;
+  
+  //envoie element vecteur 
+  for(int i(0); i < mes_verrou->lPdf.size(); i++){
+    cout<<"rapport : "<<mes_verrou->lPdf[i]<<endl;
+    envoie = send(descBr,&mes_verrou->lPdf[i],sizeof(char)*20,0);
+  }
+  
+  return 0;
+}
+
+int SubjectClient::ajoutEmploye(){
+  
+
+  //Tests si l'employe n'est pas deja dans la liste
+  for (int i(0); i< mes_verrou->lEmploye.size(); i++){
+    if ( mes_verrou->lEmploye[i] == (string)msgR.chaine) return 0;
+  }
+  mes_verrou->lEmploye.push_back((string)msgR.chaine);
+  cout<<nom<<" a ajouté \""<<msgR.chaine<<"\" dans la liste des employes"<<endl;
+  return 0;
+
+}
+
 int SubjectClient::Deconnexion(){
-  cout<<"Fermeture BR client"<<endl;
   connecter = false;
   return 0;
 }
 
-int SubjectClient::Connexion(vector<string> pListeClientAuth){
+int SubjectClient::Connexion(){
 	int compt = 0;
 	int retour = -1;
 
@@ -124,7 +169,7 @@ int SubjectClient::Connexion(vector<string> pListeClientAuth){
 				return 0;
 			}
 			//verifie si employe
-			if(RechercheListeClientAuth(pListeClientAuth, MsgR.chaine))  {
+			if(RechercheListeClientAuth(MsgR.chaine))  {
 				retour = 6;
 				strcpy(nom,MsgR.chaine);
 				send(descBr,&retour,sizeof(int),0);
@@ -148,12 +193,12 @@ int SubjectClient::Connexion(vector<string> pListeClientAuth){
 
 	}
 
-bool SubjectClient:: RechercheListeClientAuth(vector<string> pListeClientAuth, char* chaine){
+bool SubjectClient:: RechercheListeClientAuth(char* chaine){
 
   pthread_mutex_lock(&mes_verrou->VlEmploye);
-  for(int i(0); i<pListeClientAuth.size(); ++i)
+  for(int i(0); i < mes_verrou->lEmploye.size(); ++i)
    {
-     if (pListeClientAuth[i] == (string)chaine) {
+     if ( mes_verrou->lEmploye[i] == (string)chaine) {
        pthread_mutex_unlock(&mes_verrou->VlEmploye);
        return true;
      }

@@ -1,0 +1,31 @@
+#include "Controleur.h"
+
+Controleur::Controleur(SubjectClient* cli) : Reponse(cli){}
+
+void Controleur::TraitementMsg() {
+	Message msgR = _subjet->getMessage();
+	cout<<"Message Reçut :\n"<<endl;
+	msgR.Affiche();
+
+	switch(msgR.type){
+	  
+	  //Envoie lEmploye  serveur->client
+	case 1 : 
+	  break;
+
+	  //Envoie un pdf serveur->client
+	case 2:
+	  break;
+	  
+	  //Deconnexion
+	case 3:
+	  break;
+
+	default://cas d'erreur	  
+	  cout<<"requete pas reconnu"<<endl;
+	  break;
+
+	}
+}
+
+Controleur::~Controleur() {}
