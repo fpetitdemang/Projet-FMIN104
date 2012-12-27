@@ -1,12 +1,9 @@
 /*
  * client.cpp
  *
- *  Created on: 26 déc. 2012
+ *  Created on: 28 déc. 2012
  *      Author: Nordine
  */
-
-
-
 #include <iostream>
 #include <errno.h>
 #include <sys/socket.h>
@@ -35,7 +32,7 @@ using namespace std;
 
 int descBrCli;
 int identifier = 0;
-int	taille = 255;
+int taille = 255;
 
 
 
@@ -51,9 +48,11 @@ int Identif(int brclient)
   char chaine[20];
   int descBrCli = brclient;
   int retour;
-
-
-
+  int compteur = 0;
+  int rep = 0;
+do
+{
+  compteur++;
   printf("n° identifiant : ");
   scanf("%s", chaine);
   tailleMsg = sizeof(chaine);
@@ -85,24 +84,28 @@ int Identif(int brclient)
 								cout<<" Identifiant envoyé "<<endl;
 								cout<<" ******************* "<<endl;
 
-								int rep = recv(descBrCli, &typeR, sizeof(int), 0);
-								if(rep  < 0)
-								{
-								//cout <<typeR<<endl;
-								perror("Probleme reception dans focntion identification");
-								return -1;
-								}else{
-								        int retour = typeR;
-									//cout <<rep<<endl;
-									cout <<retour<<endl;
-									return retour;
-									}
-								}
-						}
-			}
-
-  
-}
+								rep = recv(descBrCli, &typeR, sizeof(int), 0);
+								
+								
+							      }
+								  
+								
+					}
+			 }
+			 
+	}while(compteur < 4 || rep != 6);
+	
+	if(rep == 5)
+	{
+	  return 5;
+	}
+	if(rep == 6)
+	{
+	  return 6;
+	}
+	//cout<<"Mauvais identidiant"<<endl;
+								
+  }
 
 
 /******** Demande de redaction aupres du serveur *****/
@@ -180,7 +183,7 @@ int SauvRapport(int brclient)
 	tailleMsg = sizeof(chaine);
 	typeR = 10;
 
-	int sendTy =  send(descBrCli, &typeR, sizeof(int), 0);	
+	int sendTy =  send(descBrCli, &typeR, sizeof(int), 0);
 		if(sendTy  < 0)
 			{
 			perror("1 Sauve rapport");
@@ -207,8 +210,8 @@ int SauvRapport(int brclient)
 				}
 
 			  
-			}
-			return 1;
+			     }
+			
 }
 
 
@@ -281,11 +284,11 @@ int EnvoiRapport(int brclient)
 
 								}
 						}
-					}
- 
+			  
+			}
 }
 
-
+/*
 void LirefichierPdf()
 {
 // le constructeur de ifstream permet d'ouvrir un fichier en lecture
@@ -304,28 +307,29 @@ std::cout << ligne << std::endl;
 }
 system("pause");
 } 
-
+*/
 
 
 /******** Demande de deconnection *****/
 
-void Deconnection()
+void Deconnection(int brclient)
 {
-
 /*
 	Demande de deconnection pour faire ça proprement 
 	Envoi au serveur la deconnection
-	type = 2
+	type = 7
 */
-
-  int typeR = 2;
+  int typeR = 7;
+  int tailleMsg;
+  char chaine[0];
+  int descBrCli = brclient;
   send(descBrCli, &typeR, sizeof(int), 0);
 
 
   cout<<" ******************************** "<<endl;
   cout<<" FERMETURE DE TOUTE COMMUNICATION "<<endl;
   cout<<" ******************************** "<<endl;
-
+  close(descBrCli);
   exit(1);
 }
 
@@ -335,10 +339,10 @@ void Deconnection()
 int main(int argc, char *argv[]){
 
 
-	cout<<"  *************************************** "<<endl;
-	cout<< " --------  DEMANDE DE CONNECTION -------"<<endl;
-	cout<<"  *************************************** "<<endl;
-	char HOST[255];
+  cout<<"  *************************************** "<<endl;
+  cout<< " --------  DEMANDE DE CONNECTION -------"<<endl;
+  cout<<"  *************************************** "<<endl;
+  char HOST[255];
   int PORTC;
   int PORTS;
 	
@@ -368,7 +372,7 @@ int main(int argc, char *argv[]){
   }else{
     perror("Creation BR privee");  
     exit(1);
-  }
+	}
   
   //BR distante
   SockDist brPub(HOST, (short)PORTS);
@@ -377,12 +381,13 @@ int main(int argc, char *argv[]){
 
   
   //Demande de connexion
-  if (connect(descBrCli,(struct sockaddr *)adrBrPub, lgAdrBrPub) < 0) {
+  if (connect(descBrCli,(struct sockaddr *)adrBrPub, lgAdrBrPub) < 0) 
+  {
     perror("Demande connexion");
     exit(1);
   }else{
-    perror("Demande connexion");
-  }
+	perror("Demande connexion");
+	}	
 
 
 	int faire;
@@ -400,9 +405,6 @@ int main(int argc, char *argv[]){
 
  ******/
 
-
-
-
 	if(faire == 1)
 	  {
 	  int reponseIdent = Identif(descBrCli);
@@ -410,9 +412,10 @@ int main(int argc, char *argv[]){
 	      {		
 							 
 		 cout<<"Connection non accorder "<<endl;
+		 close(descBrCli);
 		 exit(1);
 		  }else
-				{
+			{
 									
 				cout<<" **************************************** "<<endl;
 				cout<<" Vous etez identifier aupres du serveur ! "<<endl;
@@ -424,77 +427,52 @@ int main(int argc, char *argv[]){
 									
 				if(faire == 7)
 				{
-				Deconnection();
-						}
+				Deconnection(descBrCli);
+				}
 			
-						if(faire == 9)
-						{
-						int reponseRedac = Redac(descBrCli);
-						if(reponseRedac != 1)
-						{	
-						perror(" Demande de redaction ");
-						exit(1);
-						}else
-						{
-						cout<<" ecriture du raport terminer ! "<<endl;
-						while(1)
-												
-						{
-						  int RepSauvRapport = 0;
-						  cout<<" **************************************** "<<endl;
-						  cout<<" Quoi faire taper le numero correspondant "<<endl;
-						  cout<<" **************************************** "<<endl;
-						  cout<<" 9 : Demande de redaction "<<endl;
-						  cout<<" 7 : Demande de  deconnection "<<endl;
-						  cout<<" 10 : Sauvegarde rapport "<<endl;
-						  cout<<" 11 : Envoie rapport "<<endl;
-						  scanf("%i", &faire);
-						
-						  if(faire == 7)
-						  {
-						  Deconnection();
-						  }
-			
-						  if(faire == 9)
-						  {
-						  Redac(descBrCli);
-						  }
-											 
-						  if(faire == 10)
-						  {
-						  int RepSauvRapport = SauvRapport(descBrCli);
-						  
-						  }
-											
-						  if(faire == 11)
-						  {
+				if(faire == 9)
+				{
+				int reponseRedac = Redac(descBrCli);
+				if(reponseRedac != 1)
+				{
+				perror(" Demande de redaction ");
+				exit(1);
+				}else
+					    {
+						    cout<<" ecriture du raport terminer ! "<<endl;
+						    while(1)
+												    
+						    {
+						      int RepSauvRapport = 0;
+						      cout<<" **************************************** "<<endl;
+						      cout<<" Quoi faire taper le numero correspondant "<<endl;
+						      cout<<" **************************************** "<<endl;
+						      cout<<" 9 : Demande de redaction "<<endl;
+						      cout<<" 7 : Demande de  deconnection "<<endl;
+						      cout<<" 10 : Sauvegarde rapport "<<endl;
+						      cout<<" 11 : Envoie rapport "<<endl;
+						      scanf("%i", &faire);
 						    
-						  int RepEnvoiRap = EnvoiRapport(descBrCli);
-						  if(RepEnvoiRap == 1)
-						  {
-						    cout<<"fihier bien recu"<<endl;}
-						  }
-						  if(faire == 12)
-						  {
-						   LirefichierPdf();
-						  
-						  }
-						}
-}
-}
+						      switch(faire)
+						      {
+							case 7: {Deconnection(descBrCli);break;}
+							
+							case 9: {Redac(descBrCli);break;}
+							
+							case 10: {RepSauvRapport = SauvRapport(descBrCli);break;}
+							
+							case 11: {int RepEnvoiRap = EnvoiRapport(descBrCli);break;}
+					    
+						    
+							}
+						      }		
+					    }
+				}
 									
 										
-				}
-		}
+			}
+	  }
 
-								
-
-
-
-
-  
-  
-  
   return 0;
 }
 
