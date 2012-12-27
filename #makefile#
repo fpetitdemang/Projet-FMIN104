@@ -11,11 +11,11 @@ client.o: client.cpp Sock/sock.h Sock/sockdist.h
 	g++ -Wall -c client.cpp
 
 
-sock.o: ../Sock/sock.cc ../Sock/sock.h
+sock.o: Sock/sock.cc Sock/sock.h
 	g++ -Wall -c Sock/sock.cc
 
-sockdist.o: ../Sock/sockdist.cc ../Sock/sockdist.h
-	g++ -Wall -c ../Sock/sockdist.cc
+sockdist.o: Sock/sockdist.cc Sock/sockdist.h
+	g++ -Wall -c Sock/sockdist.cc
 
 
 

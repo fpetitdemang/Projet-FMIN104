@@ -13,6 +13,10 @@ class Observer;
 #include "Observer.h"
 #include <vector>
 #include <iostream>
+#include <stdio.h>
+#include <vector>
+#include <strings.h>
+#include <string.h>
 
 using namespace std;
 

@@ -47,24 +47,25 @@ int envoieRequete(int descBr, int num, int taille, char *chaine){
 
   //type
   int envoie = send(descBr, &num, sizeof(int), 0);
-  if (envoie <= 0) {
-    perror("listeRapport");
+  if (envoie < 1) {
+    perror("send");
     return -1;
     }
+ 
   //taille
   envoie = send(descBr, &taille, sizeof(int), 0);
-  if (envoie <= 0) {
-    perror("listeRapport");
+  if (envoie < 1) {
+    perror("send");
     return -1;
   }
   
   //chaine
   envoie = send(descBr, chaine, sizeof(char)*taille, 0);
-  if (envoie <= 0) {
-    perror("listeRapport");
+  if (envoie < 1) {
+    perror("send");
     return -1;
   }
-  
+
   return 0;
 }
 
@@ -79,8 +80,8 @@ int RecupererRapportRedige(int descBr){
   scanf("%s", chaine);
 
   //demande envoie d'un rapport
-  if (envoieRequete(descBr, typeR, tailleMsg, chaine) <= 0 ){
-    perror("recv");
+  if (envoieRequete(descBr, typeR, tailleMsg, chaine) != 0 ){
+    perror("send");
     return -1;
   }
 
@@ -111,40 +112,29 @@ int listeRapportRedige(int descBr){
   char chaine[2] = "c";
   
   //envoie requete
-  //type
-  int envoie = send(descBr, &typeR, sizeof(int), 0);
-  if (envoie <= 0) {
-    perror("listeRapport");
-    return -1;
-    }
-  //taille
-  envoie = send(descBr, &tailleMsg, sizeof(int), 0);
-  if (envoie <= 0) {
-    perror("listeRapport");
+  if (envoieRequete(descBr, typeR, tailleMsg, chaine) != 0 ){
+    perror("send");
     return -1;
   }
-  
-  //chaine
-  envoie = send(descBr, &chaine, sizeof(char), 0);
-  if (envoie <= 0) {
-    perror("listeRapport");
-    return -1;
-  }
+ 
   
   int typeRR;
   int nbPdf;
 
   int reception = recv(descBr, &typeRR, sizeof(int), 0);
   if (reception <= 0) {
-    perror("");
+    perror("rcv");
     return -1;
   }
+  
+  //serveur s'est deconnecté
+  if (typeRR == 7) return -1;
   
   if (typeRR == 12){
 
     reception = recv(descBr, &nbPdf, sizeof(int), 0);
     if (reception <= 0) {
-      perror("listeRapport");
+      perror("rvc");
       return -1;
     }
     
@@ -162,10 +152,16 @@ int listeRapportRedige(int descBr){
     }
 
     //affiche liste rapport redige
-    cout<<"LISTE DES RAPPORTS REDIGES"<<endl;
-    for (int i(0); i < lPdfDispo.size(); i++){
-      cout<<"\t-"<<lPdfDispo[i]<<endl;
+    if (lPdfDispo.size() == 0){
+      cout<<"Aucun rapport n'est encore rédigé"<<endl;
+    }else{
+      cout<<"\n\n\n\nLISTE DES RAPPORTS REDIGES"<<endl;
+      for (int i(0); i < lPdfDispo.size(); i++){
+	cout<<"\t-"<<lPdfDispo[i]<<endl;
+      }
     }
+    sleep(5);
+    cout<<"\n\n\n\n"<<endl;
     return 0;
   }
   
@@ -191,28 +187,15 @@ int ajoutEmploye(int descBr){
     scanf("%s", chaine);
 
     if (strcmp(chaine,"fin") == 0) return 0;
-    
-    int envoie = send(descBr, &typeR, sizeof(int), 0);
-    if (envoie <= 0) {
-      perror("ajout employe");
+
+    //demande envoie d'un rapport
+    if (envoieRequete(descBr, typeR, tailleMsg, chaine) != 0 ){
+      perror("send");
       return -1;
     }
-    
-    envoie = send(descBr, &tailleMsg, sizeof(int), 0);
-    if (envoie <= 0) {
-      perror("ajout employe");
-      return -1;
-    }
-    
-    envoie = send(descBr, &chaine, tailleMsg, 0);
-    if (envoie <= 0) {
-      perror("ajout employe");
-      return -1;
-    } 
+   
   }while(true);
   
- 
-
 }
 
 
@@ -224,26 +207,15 @@ int identification(int descBr){
   int tailleMsg = 20;
   char chaine[20];
   
+  //boucle tant que le serveur valide pas connexion
   do{
     
     printf("Identifiant : ");
     scanf("%s", chaine);
     
-    int envoie = send(descBr, &typeR, sizeof(int), 0);
-    if (envoie <= 0) {
-      perror("identification");
-      return -1;
-    }
-    
-    envoie = send(descBr, &tailleMsg, sizeof(int), 0);
-    if (envoie < 0) {
-      perror("identification");
-      return -1;
-    }
-    
-    envoie = send(descBr, &chaine, tailleMsg, 0);
-    if (envoie <= 0) {
-      perror("identification");
+    //demande envoie d'un rapport
+    if (envoieRequete(descBr, typeR, tailleMsg, chaine) < 0 ){
+      perror("send");
       return -1;
     }
 
@@ -251,12 +223,16 @@ int identification(int descBr){
  
     int reception = recv(descBr, &typeRR, sizeof(int), 0);
     if (reception <= 0) {
-      perror("identification");
+      perror("recv");
       return -1;
     }
+    
+    //serveur s'est deconnecté
+    if (typeRR == 7) return -1;
+
   }while(typeRR != 6);
   
- 
+  return 0;
 
 }
 
@@ -306,7 +282,7 @@ int main(int argc, char *argv[]){
   }
   
 	
-  if (identification(descBrCli) == -1){
+  if (identification(descBrCli) != 0){
     cout<<"echec identification au serveur"<<endl;
     cout<<"Terminaison programme"<<endl;
     close(descBrCli);
@@ -340,7 +316,7 @@ int main(int argc, char *argv[]){
 
   case 2: 
     if (listeRapportRedige(descBrCli) != 0){
-      cout<<"echec ajout du dernier employe"<<endl;
+      cout<<"echec consultation des rapport"<<endl;
       cout<<"Terminaison programme"<<endl;
       close(descBrCli);
       return -1;

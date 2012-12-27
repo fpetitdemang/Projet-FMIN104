@@ -54,11 +54,11 @@ void *thread_client(void *p){
     
   case 0 :     //Employe
     client.Detach(&TraitementContr);
-    cout<<client.getNom()<<" vient de se connecter"<<endl;
+    cout<<"\""<<client.getNom()<<"\" vient de se connecter"<<endl;
     break;
   case 1:  //Controler
     client.Detach(&TraitementEmp);
-    cout<<client.getNom()<<" vient de se connecter"<<endl;
+    cout<<"\""<<client.getNom()<<"\" vient de se connecter"<<endl;
     break;
   default:
     cout<<"Echec identification client"<<endl;
@@ -69,8 +69,13 @@ void *thread_client(void *p){
     }
   
     client.run();
+
+    //prévient client de la deconnexion
+    int num = 7;
+    send((int)p,&num,sizeof(int),0);
+    
     close((int) p);
-    cout<<client.getNom()<<" est deconnecté"<<endl;
+    cout<<"\""<<client.getNom()<<"\" est deconnecté"<<endl;
     pthread_exit(NULL);
 }
   
@@ -92,8 +97,8 @@ int main(){
   pthread_mutex_init(&mes_verrous.VlEmploye, NULL);
   pthread_mutex_init(&mes_verrous.VlPdf, NULL);
 
-  mes_verrous.lEmploye.push_back("nordine");
-  mes_verrous.lEmploye.push_back("franck");
+  /* mes_verrous.lEmploye.push_back("nordine");
+     mes_verrous.lEmploye.push_back("franck");*/
 
 
 
@@ -133,11 +138,11 @@ int main(){
 
   printf("\n\n");
   while(1){
-    cout<<"Attend demande connexion"<<endl;
+    //cout<<"Attend demande connexion"<<endl;
     int descBrCv = accept(descBrPub,(struct sockaddr*)&brCv,&lgbrCv);
     if (descBrCv < 0){
       perror("Traitement demande connexion");
-      exit(1);
+      break;
     }else{
       cout<<"Traitement demande connexion : Ok"<<endl;
     }
@@ -156,6 +161,8 @@ int main(){
   for(int i=0; i<lThread.size(); i++){
     pthread_join(lThread[i],NULL);
   }
+  
+  cout<<"Terminaison serveur"<<endl;
   
   return 0;
 }

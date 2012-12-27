@@ -26,14 +26,14 @@ SubjectClient::SubjectClient(int pDescBr, verrou *m_verrou){
 void SubjectClient::run(){
   //Se met en lecture sur la boite de reception//
   while(connecter){
-    printf("Thread client en attente de reception :\n");
+    //printf("Thread client en attente de reception :\n");
     
     try{
       msgR = Message(descBr);
       //averti observeur de la reception du msg
       Notify();
     }catch(int  &descr){
-      perror("recv");
+      //perror("recv");
       break;
     }
   }
@@ -153,7 +153,7 @@ int SubjectClient::Connexion(){
 	int retour = -1;
 
 	//3 tentatives d'authentification
-	while (compt < 4){
+	while (compt < 3){
 
 	  try{
 		Message MsgR(descBr);
@@ -177,18 +177,27 @@ int SubjectClient::Connexion(){
 			}
 		}
 
+
+		//Envoie message d'echec
+		if (compt < 2){  
+		  //mauvais identifiant
+		  retour = 5;
+		  if (send(descBr,&retour,sizeof(int),0) <= 0) throw descBr;
+		}
+		
+	
+		
+		compt++;
+
 	  }catch(int  &descBr){
 	    perror("recv ");
 	    return -1;
 	  }
 
-		//Envoie message d'echec
-		retour = 5;
-		send(descBr,&retour,sizeof(int),0);
-		compt++;
 	}
 
 	//retourne -1 si client non identifier
+	//Envoie message d'echec
 	return -1;
 
 	}
