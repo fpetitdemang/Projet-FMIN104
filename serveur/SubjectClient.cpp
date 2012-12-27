@@ -46,9 +46,10 @@ int SubjectClient::ecrireRapport(char* chaine){
 int  SubjectClient::ouvreRapport(){
   int res = OuvreRapport(nom);
   mes_verrou->lPdf.push_back((string)nom);//ajout pdf a la liste de rapportredigé
-  /* for (int i(0);  mes_verrou->lPdf.size() < i; i++){
+  cout<<"Liste des pdfs : "<<endl;
+  for (int i(0);  i < mes_verrou->lPdf.size(); i++){
     cout<<mes_verrou->lPdf[i]<<endl;
-    }*/
+  }
   return res;
 }
 
@@ -123,8 +124,7 @@ int SubjectClient::envoieLpdfRedige(){
   
   //envoie element vecteur 
   for(int i(0); i < mes_verrou->lPdf.size(); i++){
-    cout<<"rapport : "<<mes_verrou->lPdf[i]<<endl;
-    envoie = send(descBr,&mes_verrou->lPdf[i],sizeof(char)*20,0);
+    envoie = send(descBr,mes_verrou->lPdf[i].c_str(),sizeof(char)*20,0);
   }
   
   return 0;

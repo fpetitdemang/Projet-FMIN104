@@ -30,21 +30,23 @@ int listeRapportRedige(int descBr){
   vector<string> lPdfDispo;
   int typeR = 3;
   int tailleMsg = 1;
-  char *chaine = "c";
+  char chaine[2] = "c";
   
   //envoie requete
+  //type
   int envoie = send(descBr, &typeR, sizeof(int), 0);
   if (envoie <= 0) {
     perror("listeRapport");
     return -1;
     }
-
+  //taille
   envoie = send(descBr, &tailleMsg, sizeof(int), 0);
   if (envoie <= 0) {
     perror("listeRapport");
     return -1;
   }
   
+  //chaine
   envoie = send(descBr, &chaine, sizeof(int), 0);
   if (envoie <= 0) {
     perror("listeRapport");
@@ -68,6 +70,7 @@ int listeRapportRedige(int descBr){
       return -1;
     }
     
+
     char tmp[20];
     while(nbPdf > 0){
       reception = recv(descBr, &tmp, sizeof(char)*20, 0);
@@ -81,8 +84,9 @@ int listeRapportRedige(int descBr){
     }
 
     //affiche liste rapport redige
-    for (int i(0); lPdfDispo.size(); i++){
-      cout<<lPdfDispo[i]<<endl;
+    cout<<"LISTE DES RAPPORTS REDIGES"<<endl;
+    for (int i(0); i < lPdfDispo.size(); i++){
+      cout<<"\t-"<<lPdfDispo[i]<<endl;
     }
     return 0;
   }
