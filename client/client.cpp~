@@ -273,7 +273,7 @@ int EnvoiRapport(int brclient)
 									      flux.close();
 									      //close(descBrCli);
 									      cout<<"fichier recu "<<endl;
-									      //void ouvrirDocument();
+									      void ouvrirDocument()
 
 								
 
@@ -282,7 +282,7 @@ int EnvoiRapport(int brclient)
 								}
 						}
 					}
- 
+  return 1;
 }
 
 
