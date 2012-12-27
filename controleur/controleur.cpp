@@ -26,6 +26,84 @@
 
 using namespace std;
 
+
+//retourne la taille de la donnée à lire
+//retourne -1 en cas d'erreur
+int infoReception(int descBr, int *num){
+  int taille;
+  
+  int retour = recv(descBr, num, sizeof(int), 0);
+  if (retour <= 0) return -1;
+
+  retour = recv(descBr, &taille, sizeof(int), 0);
+  if (retour <= 0) return -1;
+  
+  return taille;  
+}
+
+//retourne -1 en cas d'erreur, 0 sinon
+int envoieRequete(int descBr, int num, int taille, char *chaine){
+ //envoie requete
+
+  //type
+  int envoie = send(descBr, &num, sizeof(int), 0);
+  if (envoie <= 0) {
+    perror("listeRapport");
+    return -1;
+    }
+  //taille
+  envoie = send(descBr, &taille, sizeof(int), 0);
+  if (envoie <= 0) {
+    perror("listeRapport");
+    return -1;
+  }
+  
+  //chaine
+  envoie = send(descBr, chaine, sizeof(char)*taille, 0);
+  if (envoie <= 0) {
+    perror("listeRapport");
+    return -1;
+  }
+  
+  return 0;
+}
+
+
+
+int RecupererRapportRedige(int descBr){
+  int typeR = 2;
+  int tailleMsg = 20;
+  char chaine[20];
+
+  printf("nom rapport : ");
+  scanf("%s", chaine);
+
+  //demande envoie d'un rapport
+  if (envoieRequete(descBr, typeR, tailleMsg, chaine) <= 0 ){
+    perror("recv");
+    return -1;
+  }
+
+  //reception rapport
+  int typeRR;
+  int taillePdf = infoReception(descBr, &typeRR);
+  
+  string nomRapport = (string)chaine + ".pdf"; 
+  ofstream flux(nomRapport.c_str());
+  
+  char car;
+  
+  cout<<"Encours de téléchargement"<<endl;
+  while(taillePdf > 0){
+    if (recv(descBr, &car, sizeof(char), 0) <= 0) perror("rcv");
+    flux<<car;
+    taillePdf--;
+  }
+   cout<<"Pdf télécharger"<<endl;
+  flux.close();
+}
+
+
 int listeRapportRedige(int descBr){
   vector<string> lPdfDispo;
   int typeR = 3;
@@ -47,7 +125,7 @@ int listeRapportRedige(int descBr){
   }
   
   //chaine
-  envoie = send(descBr, &chaine, sizeof(int), 0);
+  envoie = send(descBr, &chaine, sizeof(char), 0);
   if (envoie <= 0) {
     perror("listeRapport");
     return -1;
@@ -242,8 +320,11 @@ int main(int argc, char *argv[]){
   cout<<" Quoi faire taper le numero correspondant "<<endl;
   cout<<" **************************************** "<<endl;
 
+  do{
   cout<<"1 Envoie liste des employe "<<endl;
   cout<<"2 Consulter liste des rapports rediges"<<endl;
+  cout<<"3 Recuperer un rapport"<<endl;
+  cout<<"6 Terminaison programme"<<endl;
 
   scanf("%i", &reponse);
   
@@ -264,6 +345,16 @@ int main(int argc, char *argv[]){
       close(descBrCli);
       return -1;
     }
+    break;
+
+  case 3: 
+    if (RecupererRapportRedige(descBrCli) != 0){
+      cout<<"echec recuperation rapport"<<endl;
+      cout<<"Terminaison programme"<<endl;
+      close(descBrCli);
+      return -1;
+    }
+    break;
     
   default:
     break;
@@ -271,6 +362,8 @@ int main(int argc, char *argv[]){
     
     
   }
+  
+  }while(reponse != 6);
   
   
 
