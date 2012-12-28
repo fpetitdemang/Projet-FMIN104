@@ -292,15 +292,15 @@ int main(int argc, char *argv[]){
   int reponse = 0;
   
   cout<<" **************************************** "<<endl;
-  cout<<" Vous etez identifier aupres du serveur ! "<<endl;
-  cout<<" Quoi faire taper le numero correspondant "<<endl;
+  cout<<" Vous etes identifier aupres du serveur ! "<<endl;
+  cout<<" Saisir le numeros de l'action a effectuer"<<endl;
   cout<<" **************************************** "<<endl;
 
   do{
-  cout<<"1 Envoie liste des employe "<<endl;
-  cout<<"2 Consulter liste des rapports rediges"<<endl;
+  cout<<"1 Saisir la liste des employes pour le rapport "<<endl;
+  cout<<"2 Consulter la liste des rapports rediges"<<endl;
   cout<<"3 Recuperer un rapport"<<endl;
-  cout<<"6 Terminaison programme"<<endl;
+  cout<<"6 Terminer programme"<<endl;
 
   scanf("%i", &reponse);
   

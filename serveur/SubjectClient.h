@@ -28,6 +28,7 @@ private :
   char nom[20];
   int descPdf;//file descritpeur sur le fichier pdf
   bool connecter;
+  bool sauvRapport;
   verrou *mes_verrou;
 
 public:

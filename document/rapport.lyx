@@ -1,0 +1,785 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass report
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Rapport d'activités
+\end_layout
+
+\begin_layout Author
+Petitdemange Franck, Nelhassouni Nordine
+\end_layout
+
+\begin_layout Date
+29 décembre 2012
+\end_layout
+
+\begin_layout Section
+Mode emploi
+\end_layout
+
+\begin_layout Section
+Architecture
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename architecture.gif
+	width 10cm
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Protocole d'échange
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename data.gif
+	scale 30
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Algorithme
+\end_layout
+
+\begin_layout Subsection
+Algorithmes serveur
+\end_layout
+
+\begin_layout Subsubsection
+Traitements connexions
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "language={C++},numbers=left"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+ while(1){     
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Traitement des demandes de connexions
+\end_layout
+
+\begin_layout Plain Layout
+
+	int descBrCv = accept(descBrPub,(struct sockaddr*)&brCv,&lgbrCv);     
+\end_layout
+
+\begin_layout Plain Layout
+
+	if (descBrCv < 0){       
+\end_layout
+
+\begin_layout Plain Layout
+
+		perror("Traitement demande connexion");       
+\end_layout
+
+\begin_layout Plain Layout
+
+		break;//On sort de la boucle   
+\end_layout
+
+\begin_layout Plain Layout
+
+	}else{       
+\end_layout
+
+\begin_layout Plain Layout
+
+	cout<<"Traitement demande connexion : Ok"<<endl;     
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+         
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Creation thread service     
+\end_layout
+
+\begin_layout Plain Layout
+
+	pthread_t t1;     
+\end_layout
+
+\begin_layout Plain Layout
+
+	if (pthread_create(&t1,NULL,thread_client,(void*)descBrCv) != 0){     
+  
+\end_layout
+
+\begin_layout Plain Layout
+
+		cout<<"Erreur création thread service"<<endl;       
+\end_layout
+
+\begin_layout Plain Layout
+
+		close(descBrCv);//Termine la connexion     
+\end_layout
+
+\begin_layout Plain Layout
+
+	}else{       
+\end_layout
+
+\begin_layout Plain Layout
+
+	lThread.push_back(t1);//Enregistre id thread lancé
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\end_layout
+
+\begin_layout Plain Layout
+
+	}   
+\end_layout
+
+\begin_layout Plain Layout
+
+}      
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+//Attd fin execution thread de service pour terminer le programme   
+\end_layout
+
+\begin_layout Plain Layout
+
+	for(int i=0; i<lThread.size(); i++){     
+\end_layout
+
+\begin_layout Plain Layout
+
+	pthread_join(lThread[i],NULL);   
+\end_layout
+
+\begin_layout Plain Layout
+
+}   
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Algorithme traitement des connexions 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Traitements des requêtes
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "numbers=left"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+void SubjectClient::run(){   
+\end_layout
+
+\begin_layout Plain Layout
+
+//Tant que le client est connecté, 
+\end_layout
+
+\begin_layout Plain Layout
+
+  on se met en attente de reception sur la Boite réseau//   
+\end_layout
+
+\begin_layout Plain Layout
+
+while(connecter){              
+\end_layout
+
+\begin_layout Plain Layout
+
+	try{       
+\end_layout
+
+\begin_layout Plain Layout
+
+		msgR = Message(descBr);      
+\end_layout
+
+\begin_layout Plain Layout
+
+		Notify();//averti observeur attaché, d'une reception du msg       
+\end_layout
+
+\begin_layout Plain Layout
+
+	}catch(int  &descr){       
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Capture les erreurs de reception sur la BR
+\end_layout
+
+\begin_layout Plain Layout
+
+	perror("recv");       
+\end_layout
+
+\begin_layout Plain Layout
+
+	break;     }   
+\end_layout
+
+\begin_layout Plain Layout
+
+	} 
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Ci-dessous le détail du contructeur de l'objet Message.
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "numbers=left"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Message::Message(int descBr){
+\end_layout
+
+\begin_layout Plain Layout
+
+  //Recupère type de la requête   
+\end_layout
+
+\begin_layout Plain Layout
+
+	int reception = recv(descBr, &type, sizeof(int), 0);   
+\end_layout
+
+\begin_layout Plain Layout
+
+	if (reception <= 0) throw descBr;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+  //Lit taille msg à lire
+\end_layout
+
+\begin_layout Plain Layout
+
+	reception = recv(descBr, &taille, sizeof(int), 0);   
+\end_layout
+
+\begin_layout Plain Layout
+
+	if (reception <= 0 || taille > 500) throw descBr;//Limite la taille des
+ données reçut à 500 octets    
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+  //Recupère msg de la requête   
+\end_layout
+
+\begin_layout Plain Layout
+
+	if (taille > 0){   
+\end_layout
+
+\begin_layout Plain Layout
+
+	chaine =(char *) malloc(taille);   
+\end_layout
+
+\begin_layout Plain Layout
+
+	reception = recv(descBr, chaine, taille, 0);   
+\end_layout
+
+\begin_layout Plain Layout
+
+	if (reception <= 0) throw descBr;  
+\end_layout
+
+\begin_layout Plain Layout
+
+	}else{     
+\end_layout
+
+\begin_layout Plain Layout
+
+	chaine = NULL;   
+\end_layout
+
+\begin_layout Plain Layout
+
+	}   
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Code constructeur Message(int descBr)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Ci dessous la méthode appelé par l'observeur quand il réçoit une notification
+ du sujet.
+ Il s'agit de l'oberseur appelé pour le controleur.
+ De maniere analogue le fonctionnement est le même pour l'observeur associé
+ à un employé.
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "numbers=left"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+ void Controleur::TraitementMsg() { 	
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	Message msgR = _subjet->getMessage();	
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	switch(msgR.type){//recupere le numeros de la requete reçut
+\end_layout
+
+\begin_layout Plain Layout
+
+    	  
+\end_layout
+
+\begin_layout Plain Layout
+
+		//Controleur envoie le nom d'un employe à ajouter	
+\end_layout
+
+\begin_layout Plain Layout
+
+		case 1 :  	  
+\end_layout
+
+\begin_layout Plain Layout
+
+			cout<<"ajout employe"<<endl; 	  
+\end_layout
+
+\begin_layout Plain Layout
+
+			_subjet->ajoutEmploye(); 	  
+\end_layout
+
+\begin_layout Plain Layout
+
+			break;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	    //Envoie un pdf au controleur
+\end_layout
+
+\begin_layout Plain Layout
+
+		case 2: 	  
+\end_layout
+
+\begin_layout Plain Layout
+
+			_subjet->envoieRapport((string)msgR.chaine); 	  
+\end_layout
+
+\begin_layout Plain Layout
+
+			break; 	   	  
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\end_layout
+
+\begin_layout Plain Layout
+
+		//Envoie liste des rapports redigé au controleur
+\end_layout
+
+\begin_layout Plain Layout
+
+		case 3: 	  
+\end_layout
+
+\begin_layout Plain Layout
+
+			_subjet->envoieLpdfRedige(); 	  
+\end_layout
+
+\begin_layout Plain Layout
+
+			break; 	   	  
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\end_layout
+
+\begin_layout Plain Layout
+
+		//Le controleur se deconnecte	
+\end_layout
+
+\begin_layout Plain Layout
+
+		case 7: 	  
+\end_layout
+
+\begin_layout Plain Layout
+
+			_subjet->Deconnexion(); 	  
+\end_layout
+
+\begin_layout Plain Layout
+
+			break;
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\end_layout
+
+\begin_layout Plain Layout
+
+		//cas d'erreur, numeros de requete inconnu	  
+\end_layout
+
+\begin_layout Plain Layout
+
+		default:
+\end_layout
+
+\begin_layout Plain Layout
+
+			break;
+\end_layout
+
+\begin_layout Plain Layout
+
+	} 
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Acces concurrents
+\end_layout
+
+\begin_layout Standard
+La listes des employés, 
+\begin_inset Quotes eld
+\end_inset
+
+lEmploye
+\begin_inset Quotes erd
+\end_inset
+
+ devant rédiger un rapport, et la liste des rapports rédiger, 
+\begin_inset Quotes eld
+\end_inset
+
+lPdf
+\begin_inset Quotes erd
+\end_inset
+
+ sont des données en accès concurent (lecture/ecriture).
+\end_layout
+
+\begin_layout Standard
+La liste des employés devant rédiger un rapport est modifié par le controleur
+ et est consulté par un employé qui souhaite s'avoir si il doit rédiger
+ un rapport ou non.
+ Ainsi pour maintenir un état cohérent de cette donnée, nous utilisons un
+ verrou pour empêcher les employés d'acceder à la donnée, quand le controleur
+ la met à jour.
+\end_layout
+
+\begin_layout Standard
+Pour les opérations de lecture/ecriture sur les données concurrents nous
+ avons implémenté une section critique.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+ int SubjectClient::ajoutEmploye(){
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    pthread_mutex_lock(&mes_verrou->VlEmploye);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Tests si l'employe n'est pas deja dans la liste   
+\end_layout
+
+\begin_layout Plain Layout
+
+	for (int i(0); i< mes_verrou->lEmploye.size();i++){
+\end_layout
+
+\begin_layout Plain Layout
+
+    if ( mes_verrou->lEmploye[i] == (string)msgR.chaine) return -1;
+\end_layout
+
+\begin_layout Plain Layout
+
+    }
+\end_layout
+
+\begin_layout Plain Layout
+
+    mes_verrou->lEmploye.push_back((string)msgR.chaine);
+\end_layout
+
+\begin_layout Plain Layout
+
+    cout<<nom<<" a ajouté 
+\backslash
+""<<msgR.chaine<<"
+\backslash
+" dans la liste des employes"<<endl;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    pthread_mutex_unlock(&mes_verrou->VlEmploye);
+\end_layout
+
+\begin_layout Plain Layout
+
+  
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	return 0;
+\end_layout
+
+\begin_layout Plain Layout
+
+} 
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Exemple utilisation verrou
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Algorithme employe/controleur
+\end_layout
+
+\end_body
+\end_document

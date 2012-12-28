@@ -4,9 +4,6 @@ Controleur::Controleur(SubjectClient* cli) : Reponse(cli){}
 
 void Controleur::TraitementMsg() {
 	Message msgR = _subjet->getMessage();
-	cout<<"Message Reçut :\n"<<endl;
-	msgR.Affiche();
-
 	switch(msgR.type){
 	    
 	  //Recuper employe devant rediger un rapport client->serveur

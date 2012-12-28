@@ -19,7 +19,9 @@ SubjectClient::SubjectClient(int pDescBr, verrou *m_verrou){
 	descBr = pDescBr;
 	descPdf = 0;
 	connecter = true;
-	mes_verrou = m_verrou;;
+	mes_verrou = m_verrou;
+	sauvRapport = false;
+
 }
 
 
@@ -45,11 +47,12 @@ int SubjectClient::ecrireRapport(char* chaine){
 
 int  SubjectClient::ouvreRapport(){
   int res = OuvreRapport(nom);
-  mes_verrou->lPdf.push_back((string)nom);//ajout pdf a la liste de rapportredigé
-  cout<<"Liste des pdfs : "<<endl;
-  for (int i(0);  i < mes_verrou->lPdf.size(); i++){
-    cout<<mes_verrou->lPdf[i]<<endl;
-  }
+  
+  pthread_mutex_lock(&mes_verrou->VlEmploye);
+  mes_verrou->lPdf.push_back((string)nom);//ajout pdf à la liste de rapport redigé
+  pthread_mutex_unlock(&mes_verrou->VlEmploye);
+  
+  sauvRapport=true;
   return res;
 }
 
@@ -116,7 +119,8 @@ int SubjectClient::envoieLpdfRedige(){
   int typeR = 12;
   int envoie = send(descBr,&typeR,sizeof(int),0);
   if (envoie < 0) throw envoie;
-
+  
+  pthread_mutex_lock(&mes_verrou->VlPdf);
   //envoie nb de rapport redige
   int nbElmt = mes_verrou->lPdf.size();
   envoie = send(descBr, &nbElmt,sizeof(int),0);
@@ -126,25 +130,28 @@ int SubjectClient::envoieLpdfRedige(){
   for(int i(0); i < mes_verrou->lPdf.size(); i++){
     envoie = send(descBr,mes_verrou->lPdf[i].c_str(),sizeof(char)*20,0);
   }
+  pthread_mutex_unlock(&mes_verrou->VlPdf);
   
   return 0;
 }
 
 int SubjectClient::ajoutEmploye(){
   
-
+  pthread_mutex_lock(&mes_verrou->VlEmploye);
   //Tests si l'employe n'est pas deja dans la liste
   for (int i(0); i< mes_verrou->lEmploye.size(); i++){
-    if ( mes_verrou->lEmploye[i] == (string)msgR.chaine) return 0;
+    if ( mes_verrou->lEmploye[i] == (string)msgR.chaine) return -1;
   }
   mes_verrou->lEmploye.push_back((string)msgR.chaine);
   cout<<nom<<" a ajouté \""<<msgR.chaine<<"\" dans la liste des employes"<<endl;
+  pthread_mutex_unlock(&mes_verrou->VlEmploye);
   return 0;
 
 }
 
 int SubjectClient::Deconnexion(){
   connecter = false;
+  if(!sauvRapport) ouvreRapport();
   return 0;
 }
 
