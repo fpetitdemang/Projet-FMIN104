@@ -269,22 +269,18 @@ int EnvoiRapport(int brclient)
 										
 
  										//Recupere rapport
-									      cout<<recv(descBrCli, &typeR, sizeof(int), 0)<<endl;
-									      cout<<"Type recut :"<<typeR<<endl;
-									      cout<<recv(descBrCli, &tailleMsg, sizeof(int), 0)<<endl;
-									      cout<<"Taille : "<<tailleMsg<<endl;
+									      recv(descBrCli, &typeR, sizeof(int), 0);
+									      recv(descBrCli, &tailleMsg, sizeof(int), 0);
 									      
 									     // printf("Nom de fichier : ");
 									     // scanf("%s", chaine);
-									      ofstream flux("tol.pdf");
+									      ofstream flux("mon_rapport.pdf");
 									      char car;
 									      
 									      while(tailleMsg > 0){
-										cout<<"attend reception"<<endl;
-										if (recv(descBrCli, &car, sizeof(char), 0) != 0) perror("rcv");
+										if (recv(descBrCli, &car, sizeof(char), 0) < 1) perror("rcv");
 										flux<<car;
 										tailleMsg--;
-										cout<<tailleMsg<<endl;
 									      }
 									      
 									      flux.close();
@@ -334,11 +330,15 @@ void Deconnection(int brclient)
 	type = 7
 */
   int typeR = 7;
-  int tailleMsg;
-  char chaine[0];
+  int tailleMsg = 1;
+  char chaine[2] = "c";	
   int descBrCli = brclient;
   send(descBrCli, &typeR, sizeof(int), 0);
 
+  if (envoieRequete(brclient, typeR, tailleMsg, chaine) != 0 ){
+     perror("send");
+  }
+   
 
   cout<<" ******************************** "<<endl;
   cout<<" FERMETURE DE TOUTE COMMUNICATION "<<endl;
@@ -455,7 +455,7 @@ int main(int argc, char *argv[]){
 						      cout<<" **************************************** "<<endl;
 						      cout<<" 9 : Demande de redaction "<<endl;
 						      cout<<" 7 : Demande de  deconnection "<<endl;
-						      cout<<" 10 : Sauvegarde rapport "<<endl;
+						      //cout<<" 10 : Sauvegarde rapport "<<endl;
 						      cout<<" 11 : Envoie rapport "<<endl;
 						      scanf("%i", &faire);
 						    
@@ -465,9 +465,10 @@ int main(int argc, char *argv[]){
 							
 							case 9: {Redac(descBrCli);break;}
 							
-							case 10: {RepSauvRapport = SauvRapport(descBrCli);break;}
-							
-							case 11: {int RepEnvoiRap = EnvoiRapport(descBrCli);break;}
+							case 11: {
+								SauvRapport(descBrCli);
+								int RepEnvoiRap = EnvoiRapport(descBrCli);break;
+							}
 					    
 						    
 							}
