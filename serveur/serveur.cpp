@@ -11,7 +11,7 @@
 
 #include "../Sock/sock.h"
 #include "../Sock/sockdist.h"
-#include "Observer/Subject.h"
+#include "../Observer/Subject.h"
 
 #include "Employe.h"
 #include "Controleur.h"
@@ -29,7 +29,7 @@ verrou mes_verrous;
 
 
 
-char controleur[20] = "controleur";
+//char controleur[20];
 
 
 
@@ -69,7 +69,7 @@ void *thread_client(void *p){
     }
   
     client.run();
-
+    client.Deconnexion();
     //prévient client de la deconnexion
     int num = 7;
     send((int)p,&num,sizeof(int),0);
@@ -106,6 +106,8 @@ int main(){
   
   printf("n° BR : ");
   scanf("%i",&PORT);
+
+
   
 
   cout<<"\n"<<endl;

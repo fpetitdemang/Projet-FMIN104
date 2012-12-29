@@ -20,7 +20,7 @@ SubjectClient::SubjectClient(int pDescBr, verrou *m_verrou){
 	descPdf = 0;
 	connecter = true;
 	mes_verrou = m_verrou;
-	sauvRapport = false;
+	sauvRapport = true;
 
 }
 
@@ -42,6 +42,7 @@ void SubjectClient::run(){
 }
 
 int SubjectClient::ecrireRapport(char* chaine){
+  sauvRapport = false;
   cout<<"Reception bloc de section de rapport de "<<"\""<<nom<<"\""<<endl;
   return Ecrit(msgR.chaine,nom);
 }

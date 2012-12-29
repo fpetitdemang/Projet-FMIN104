@@ -137,7 +137,7 @@ int Redac(int brclient)
   while (true)
 	{
 	printf("votre Redaction : ");
-  scanf("%s", chaine);
+  	scanf("%s", chaine);
 	tailleMsg = sizeof(chaine);
 	typeR = 9;
 	
@@ -161,7 +161,7 @@ int Redac(int brclient)
 						perror("2 envoi");
 						return -1;
 						}else{
-								int sendChaine = send(descBrCli, chaine, sizeof(chaine), 0); 
+								int sendChaine = send(descBrCli, chaine, sizeof(char)*tailleMsg, 0); 
 								if(sendChaine  < 0)
 								{
 									perror(" 3 envoi");

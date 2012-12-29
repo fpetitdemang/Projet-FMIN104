@@ -160,7 +160,6 @@ int listeRapportRedige(int descBr){
 	cout<<"\t-"<<lPdfDispo[i]<<endl;
       }
     }
-    sleep(5);
     cout<<"\n\n\n\n"<<endl;
     return 0;
   }

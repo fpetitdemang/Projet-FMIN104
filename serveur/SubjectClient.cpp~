@@ -15,32 +15,46 @@ SubjectClient::SubjectClient() {
 	descBr = 0;
 }
 
-SubjectClient::SubjectClient(int pDescBr, char * nomClient){
+SubjectClient::SubjectClient(int pDescBr, verrou *m_verrou){
 	descBr = pDescBr;
 	descPdf = 0;
 	connecter = true;
-	strcpy(nom,nomClient);
+	mes_verrou = m_verrou;
+	sauvRapport = false;
+
 }
 
 
 void SubjectClient::run(){
-	//Se met en lecture sur la boite de reception//
+  //Se met en lecture sur la boite de reception//
   while(connecter){
-    printf("Thread client en attente de reception :\n");
-    msgR = Message(descBr);//generer exeption
-    //remettre dans un etat coherent la reception des msg
+    //printf("Thread client en attente de reception :\n");
     
-    //averti observeur de la reception du msg
-    Notify();
+    try{
+      msgR = Message(descBr);
+      //averti observeur de la reception du msg
+      Notify();
+    }catch(int  &descr){
+      //perror("recv");
+      break;
+    }
   }
 }
 
 int SubjectClient::ecrireRapport(char* chaine){
+  cout<<"Reception bloc de section de rapport de "<<"\""<<nom<<"\""<<endl;
   return Ecrit(msgR.chaine,nom);
 }
 
 int  SubjectClient::ouvreRapport(){
-  return OuvreRapport(nom);
+  int res = OuvreRapport(nom);
+  
+  pthread_mutex_lock(&mes_verrou->VlEmploye);
+  mes_verrou->lPdf.push_back((string)nom);//ajout pdf à la liste de rapport redigé
+  pthread_mutex_unlock(&mes_verrou->VlEmploye);
+  cout<<"Sauvegarde du rapport de "<<"\""<<nom<<"\""<<endl;
+  sauvRapport=true;
+  return res;
 }
 
 Message SubjectClient::getMessage(){
@@ -56,80 +70,159 @@ char* SubjectClient::getNom(){
 }
 
 int SubjectClient::envoieRapport(){
+  envoieRapport((string)nom);
+}
+
+int SubjectClient::envoieRapport(string nom){
 
   //recupere descripteur en lecture sur le pdf 
-  string cheminPdf = (string)nom + "/" "temp.pdf";
-  ifstream fichierPdf("nordine/temp.pdf");
+  string cheminPdf = nom + "/" "temp.pdf";
+  ifstream fichierPdf(cheminPdf.c_str());
+
+  //calcule taille
   fichierPdf.seekg(0,ios::end);
   int taillePdf = fichierPdf.tellg();
   fichierPdf.seekg(0,ios::beg);
-  //fichierPdfLecture.close();
 
-  cout<<"taille pdf envoyé"<<taillePdf<<endl;
 
+  cout<<"Taille pdf a envoyé : "<<taillePdf<<endl;
+  
   //envoie typeRequete
   int typeR = 11;
-  send(descBr,&typeR,sizeof(int),0);
+  int envoie = send(descBr,&typeR,sizeof(int),0);
+  if (envoie < 0) throw envoie;
 
   //envoie taillePdf
-  send(descBr,&taillePdf,sizeof(int),0);
+  envoie = send(descBr,&taillePdf,sizeof(int),0);
+  if (envoie < 0) throw envoie;
 
   char car;
   //envoie pdf octet par octet
   while(fichierPdf.get(car))
     {
-      send(descBr,&car,sizeof(char),0);
+      envoie = send(descBr,&car,sizeof(char),0);
+      if (envoie < 0) {
+	throw envoie;
+	return -1;
+	break;
+      }
     }
+  fichierPdf.close();
 
+  cout<<"\""<<this->nom<<"\" a recut le rapport \""<<nom<<"\""<<endl;
   
-  return -1;
+  return 0;
+}
+
+int SubjectClient::envoieLpdfRedige(){
+  
+  //envoie typeRequete
+  int typeR = 12;
+  int envoie = send(descBr,&typeR,sizeof(int),0);
+  if (envoie < 0) throw envoie;
+  
+  pthread_mutex_lock(&mes_verrou->VlPdf);
+  //envoie nb de rapport redige
+  int nbElmt = mes_verrou->lPdf.size();
+  envoie = send(descBr, &nbElmt,sizeof(int),0);
+  if (envoie < 0) throw envoie;
+  
+  //envoie element vecteur 
+  for(int i(0); i < mes_verrou->lPdf.size(); i++){
+    envoie = send(descBr,mes_verrou->lPdf[i].c_str(),sizeof(char)*20,0);
+  }
+  pthread_mutex_unlock(&mes_verrou->VlPdf);
+  
+  return 0;
+}
+
+int SubjectClient::ajoutEmploye(){
+  
+  pthread_mutex_lock(&mes_verrou->VlEmploye);
+  //Tests si l'employe n'est pas deja dans la liste
+  for (int i(0); i< mes_verrou->lEmploye.size(); i++){
+    if ( mes_verrou->lEmploye[i] == (string)msgR.chaine) return -1;
+  }
+  mes_verrou->lEmploye.push_back((string)msgR.chaine);
+  cout<<nom<<" a ajouté \""<<msgR.chaine<<"\" dans la liste des employes"<<endl;
+  pthread_mutex_unlock(&mes_verrou->VlEmploye);
+  return 0;
+
 }
 
 int SubjectClient::Deconnexion(){
-  cout<<"Fermeture BR client"<<endl;
   connecter = false;
-  int retour = close(descBr);
-
-  return retour;
+  if(!sauvRapport) ouvreRapport();
+  return 0;
 }
 
 int SubjectClient::Connexion(){
 	int compt = 0;
-
 	int retour = -1;
-	cout<<"Authentification"<<endl;
-	//3 tentatives d'authentification
-	while (compt < 4){
 
+	//3 tentatives d'authentification
+	while (compt < 3){
+
+	  try{
 		Message MsgR(descBr);
+
 
 		//si paquet identification, traitement
 		if (MsgR.type == 1){
 			//verifie si controleur
 			if (strcmp(MsgR.chaine,"controleur") == 0) {
 				retour = 6;
+				strcpy(nom,"controleur");
 				send(descBr,&retour,sizeof(int),0);
 				return 0;
 			}
 			//verifie si employe
-			if (strcmp(MsgR.chaine,"employe") == 0) {
+			if(RechercheListeClientAuth(MsgR.chaine))  {
 				retour = 6;
+				strcpy(nom,MsgR.chaine);
 				send(descBr,&retour,sizeof(int),0);
 				return 1;
 			}
 		}
 
+
 		//Envoie message d'echec
-		retour = 5;
-		send(descBr,&retour,sizeof(int),0);
+		if (compt < 2){  
+		  //mauvais identifiant
+		  retour = 5;
+		  if (send(descBr,&retour,sizeof(int),0) <= 0) throw descBr;
+		}
+		
+	
+		
 		compt++;
+
+	  }catch(int  &descBr){
+	    perror("recv ");
+	    return -1;
+	  }
+
 	}
 
-
 	//retourne -1 si client non identifier
+	//Envoie message d'echec
 	return -1;
 
 	}
+
+bool SubjectClient:: RechercheListeClientAuth(char* chaine){
+
+  pthread_mutex_lock(&mes_verrou->VlEmploye);
+  for(int i(0); i < mes_verrou->lEmploye.size(); ++i)
+   {
+     if ( mes_verrou->lEmploye[i] == (string)chaine) {
+       pthread_mutex_unlock(&mes_verrou->VlEmploye);
+       return true;
+     }
+   }
+  pthread_mutex_unlock(&mes_verrou->VlEmploye);
+  return false;
+}
 
 SubjectClient::~SubjectClient() {
 	// TODO Auto-generated destructor stub

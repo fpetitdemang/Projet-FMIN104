@@ -32,13 +32,12 @@ Message::Message(int descBr){
 
   //Recupere msg de la requete
   if (taille > 0){
-  chaine =(char *) malloc(taille);
-  reception = recv(descBr, chaine, taille, 0);
-  if (reception <= 0) throw reception;
+    chaine =(char *) malloc(taille);
+    reception = recv(descBr, chaine, taille, 0);
+    if (reception <= 0) throw reception;
   }else{
     chaine = NULL;
   }
-  
 
 }
 

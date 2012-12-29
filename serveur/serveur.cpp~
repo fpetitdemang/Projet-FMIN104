@@ -11,23 +11,27 @@
 
 #include "../Sock/sock.h"
 #include "../Sock/sockdist.h"
-#include "Observer/Subject.h"
+#include "../Observer/Subject.h"
+
 #include "Employe.h"
+#include "Controleur.h"
 
 
 #include <stdlib.h>
 
 
-char employe[20] = "employe";
-
-//vector<int> lThread;
-//vector<char>lEmploye[20]("franck");
-char controleur[20] = "controleur";
 
 
-bool recherche(char *chaine){
-  return true;
-}
+
+verrou mes_verrous;
+
+
+
+
+
+//char controleur[20];
+
+
 
 using namespace std;
 
@@ -37,39 +41,73 @@ using namespace std;
 
 
 void *thread_client(void *p){
+  
+  SubjectClient client((int)p, &mes_verrous);
+ 
+  int auth = client.Connexion();
+  
+  Controleur TraitementContr = Controleur(&client);
+  Employe TraitementEmp = Employe(&client);
+  
 
-  /*int auth = AutorisationConnexion((int)p);
-  cout<<"retour authentification : "<<auth<<endl;
-  if (auth == 1){*/
-    SubjectClient client((int)p, "nordine");
-    Employe Traitement(&client);
-    client.Connexion();
+  switch(auth){
+    
+  case 0 :     //Controleur
+    client.Detach(&TraitementEmp);
+    cout<<"\""<<client.getNom()<<"\" vient de se connecter"<<endl;
+    break;
+  case 1:  //Employe
+    client.Detach(&TraitementContr);
+    cout<<"\""<<client.getNom()<<"\" vient de se connecter"<<endl;
+    break;
+  default:
+    cout<<"Echec identification client"<<endl;
+    cout<<"Fermeture Thread de service"<<endl;
+    close((int) p);
+    pthread_exit(NULL);
+    break;
+    }
+  
     client.run();
-    /*}else{
-    cout<<"Fermeture connexion : identification incorrect"<<endl;
-    close((int)p);
-    }*/
-    cout<<"Fermeture Thread client"<<endl;
+
+    //prévient client de la deconnexion
+    int num = 7;
+    send((int)p,&num,sizeof(int),0);
+    
+    close((int) p);
+    cout<<"\""<<client.getNom()<<"\" est deconnecté"<<endl;
     pthread_exit(NULL);
 }
-
+  
 
 
 
 
 /* 
 
-Fonction main 
+Fonction main()
 
 */
 
 int main(){
+  
+  vector<pthread_t> lThread;
+  
+  //initialisation des verrous
+  pthread_mutex_init(&mes_verrous.VlEmploye, NULL);
+  pthread_mutex_init(&mes_verrous.VlPdf, NULL);
+
+  /* mes_verrous.lEmploye.push_back("nordine");
+     mes_verrous.lEmploye.push_back("franck");*/
+
 
 
   int PORT;
   
   printf("n° BR : ");
   scanf("%i",&PORT);
+
+
   
 
   cout<<"\n"<<endl;
@@ -102,19 +140,31 @@ int main(){
 
   printf("\n\n");
   while(1){
-    cout<<"Attend demande connexion"<<endl;
+    //cout<<"Attend demande connexion"<<endl;
     int descBrCv = accept(descBrPub,(struct sockaddr*)&brCv,&lgbrCv);
     if (descBrCv < 0){
       perror("Traitement demande connexion");
-      exit(1);
+      break;
     }else{
       cout<<"Traitement demande connexion : Ok"<<endl;
     }
     
-    //Creation thread-client
+    //Creation thread service
     pthread_t t1;
-    pthread_create(&t1,NULL,thread_client,(void*)descBrCv);
+    if (pthread_create(&t1,NULL,thread_client,(void*)descBrCv) != 0){
+      cout<<"Erreur création thread service"<<endl;
+      close(descBrCv);
+    }else{
+      lThread.push_back(t1);
+    }
   }
+  
+  //Attd fin execution thread pour terminer le programme
+  for(int i=0; i<lThread.size(); i++){
+    pthread_join(lThread[i],NULL);
+  }
+  
+  cout<<"Terminaison serveur"<<endl;
   
   return 0;
 }

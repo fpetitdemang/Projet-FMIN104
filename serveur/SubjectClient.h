@@ -8,7 +8,7 @@
 #ifndef SUBJECTCLIENT_H_
 #define SUBJECTCLIENT_H_
 
-#include "Observer/Subject.h"
+#include "../Observer/Subject.h"
 #include "Message.h"
 #include <errno.h>
 #include <stdio.h>
