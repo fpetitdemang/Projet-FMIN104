@@ -52,12 +52,12 @@ void *thread_client(void *p){
 
   switch(auth){
     
-  case 0 :     //Employe
-    client.Detach(&TraitementContr);
+  case 0 :     //Controleur
+    client.Detach(&TraitementEmp);
     cout<<"\""<<client.getNom()<<"\" vient de se connecter"<<endl;
     break;
-  case 1:  //Controler
-    client.Detach(&TraitementEmp);
+  case 1:  //Employe
+    client.Detach(&TraitementContr);
     cout<<"\""<<client.getNom()<<"\" vient de se connecter"<<endl;
     break;
   default:

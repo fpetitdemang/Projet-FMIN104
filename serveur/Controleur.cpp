@@ -8,7 +8,6 @@ void Controleur::TraitementMsg() {
 	    
 	  //Recuper employe devant rediger un rapport client->serveur
 	case 1 : 
-	  cout<<"ajout employe"<<endl;
 	  _subjet->ajoutEmploye();
 	  break;
 
@@ -28,7 +27,7 @@ void Controleur::TraitementMsg() {
 	  break;
 
 	default://cas d'erreur	  
-	  cout<<"requete pas reconnu"<<endl;
+	  //cout<<"requete pas reconnu"<<endl;
 	  break;
 
 	}

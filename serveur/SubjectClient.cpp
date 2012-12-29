@@ -42,6 +42,7 @@ void SubjectClient::run(){
 }
 
 int SubjectClient::ecrireRapport(char* chaine){
+  cout<<"Reception bloc de section de rapport de "<<"\""<<nom<<"\""<<endl;
   return Ecrit(msgR.chaine,nom);
 }
 
@@ -51,7 +52,7 @@ int  SubjectClient::ouvreRapport(){
   pthread_mutex_lock(&mes_verrou->VlEmploye);
   mes_verrou->lPdf.push_back((string)nom);//ajout pdf à la liste de rapport redigé
   pthread_mutex_unlock(&mes_verrou->VlEmploye);
-  
+  cout<<"Sauvegarde du rapport de "<<"\""<<nom<<"\""<<endl;
   sauvRapport=true;
   return res;
 }

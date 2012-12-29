@@ -9,7 +9,6 @@
 #include <cstdio>
 
 Observer::Observer() {
-	printf("Creation Observeur\n");
 }
 
 Observer::~Observer() {
